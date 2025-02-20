@@ -1,0 +1,47 @@
+[tool.poetry]
+name = "metatrader5ext"
+version = "0.1.1"
+description = "MetaTrader5 Extension"
+readme = "README.md"
+repository = "https://github.com/MarketCore/metatrader5ext"
+authors = ["Samuel Ojietohamen <seekersoftec@gmail.com>"]
+include = [
+    "metatrader5ext/**/*",
+    { path = "metatrader5ext/**/*.so", format = "wheel" },
+    { path = "metatrader5ext/**/*.pyx" },
+    { path = "metatrader5ext/**/*.pyd" },
+]
+packages = [{ include = "metatrader5ext" }]
+
+[build-system]
+requires = [
+    "setuptools>=64",
+    "poetry-core>=1.9.0",
+    "toml>=0.10.2",
+    "numpy>=1.26.4",
+    "Cython<=3.1.0a1",
+]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.build]
+script = "build.py"
+generate-setup-file = false
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+cython = "<=3.1.0a1"
+numpy = ">=1.21.6, <=1.26.4"
+docker = "^7.1.0"
+rpyc = "^6.0.1"
+python-dotenv = "^1.0.1"
+numba = "^0.60.0"
+pyparsing = "^3.1.2"
+MetaTrader5 = { version = "^5.0.37", markers = "sys_platform == 'win32'" }
+toml = "^0.10.2"
+polars-lts-cpu = "^1.19.0"
+
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.2"
