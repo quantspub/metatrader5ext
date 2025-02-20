@@ -1,6 +1,6 @@
 # MetaTrader 5 Extension
 
-A MT5 extension. This package utilizes Docker and a Python Windows version to enable the use of [MetaTrader5](https://pypi.org/project/MetaTrader5) on the Nautilus Trader.
+A MT5 extension. This library extension extendsthe features of [MetaTrader5](https://pypi.org/project/MetaTrader5).
 
 ## Documentation
 
@@ -11,7 +11,7 @@ To install the MetaTrader 5 Adapter, follow these steps:
 1. Clone the repository:
 
    ```sh
-   git clone https://github.com/MarketCore/metatrader5ext.git
+   git clone https://github.com/quantspub/metatrader5ext.git
    ```
 
 2. Navigate to the project directory:
@@ -20,13 +20,7 @@ To install the MetaTrader 5 Adapter, follow these steps:
    cd ./metatrader5ext
    ```
 
-3. Pull the Docker image:
-
-   ```sh
-   docker pull docker.io/fortesenselabs/metatrader5-terminal:latest
-   ```
-
-4. Install the required Python packages:
+3. Install the required Python packages:
    ```sh
    poetry install
    ```
