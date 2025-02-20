@@ -1,6 +1,6 @@
 # MetaTrader 5 Extension
 
-A MT5 extension. This library extension extendsthe features of [MetaTrader5](https://pypi.org/project/MetaTrader5).
+A MT5 extension. This library extension extends the features of [MetaTrader5](https://pypi.org/project/MetaTrader5).
 
 ## Documentation
 
