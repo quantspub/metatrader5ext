@@ -6,6 +6,10 @@
 
 #include <socket-library-mt4-mt5.mqh>
 
+ServerSocket restServer;
+ServerSocket streamingServer;
+ClientSocket streamingClients[];  // Store connected clients for streaming
+
 // Function to encode strings using a predefined alphabet-number mapping
 uchar[] EncodeString(string input)
 {

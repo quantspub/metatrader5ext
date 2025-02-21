@@ -13,10 +13,6 @@ input bool ONLY_STREAM_MODE = false; // If enabled, responses will be sent via s
 
 datetime lastBarTime = 0;
 
-ServerSocket restServer;
-ServerSocket streamingServer;
-Socket streamingClients[];  // Store connected clients for streaming
-
 void OnInit()
 {
     restServer = new ServerSocket(REST_SERVER_PORT, true);
@@ -114,5 +110,75 @@ void OnTick()
                            IntegerToString(volume) + "^";
         uchar barData[] = EncodeString(barString);
         BroadcastStreamingData(barData);
+    }
+}
+
+void ProcessClient(Socket &client)
+{
+    uchar buffer[1024];
+    int received = client.Receive(buffer);
+
+    if (received > 0)
+    {
+        string request = CharArrayToString(buffer, received);
+        uchar response[];
+
+        if (request == "F000^1^")
+        {
+            response = GetCheckConnection();
+        }
+        else if (request == "F001^1^")
+        {
+            response = GetStaticAccountInfo();
+        }
+        else if (request == "F002^1^")
+        {
+            response = GetDynamicAccountInfo();
+        }
+        else if (request == "F003^2^")
+        {
+            response = GetInstrumentInfo(_Symbol);
+        }
+        else if (request == "F007^1^")
+        {
+            response = GetBrokerInstrumentNames();
+        }
+        else if (request == "F004^2^")
+        {
+            response = CheckMarketWatch(_Symbol);
+        }
+        else if (request == "F008^2^")
+        {
+            response = CheckTradingAllowed(_Symbol);
+        }
+        else if (request == "F011^1^")
+        {
+            response = CheckTerminalServerConnection();
+        }
+        else if (request == "F012^1^")
+        {
+            response = CheckTerminalType();
+        }
+        else if (request == "F020^2^")
+        {
+            response = GetLastTickInfo();
+        }
+        else if (request == "F005^1^")
+        {
+            response = GetBrokerServerTime();
+        }
+        else
+        {
+            response = EncodeString("F999^1^UNKNOWN_REQUEST");
+        }
+
+        if (ONLY_STREAM_MODE)
+        {
+            BroadcastStreamingData(response);
+        }
+        else
+        {
+            client.Send(response);
+        }
     }
 }
