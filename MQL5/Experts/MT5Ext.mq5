@@ -1,4 +1,10 @@
-#include <MT5Ext/socket-library-mt4-mt5.mqh>
+//+------------------------------------------------------------------+
+//|                                            MT5Ext.mq5            |
+//+------------------------------------------------------------------+
+#property copyright "QuantsPub"
+#property version "0.1"
+
+#include <MT5Ext\MT5Ext.mqh>
 
 input int restServerPort = 1111;   // REST server for commands
 input int streamingServerPort = 2222; // Streaming server for real-time data and responses
@@ -11,115 +17,104 @@ ServerSocket restServer;
 ServerSocket streamingServer;
 Socket streamingClients[];  // Store connected clients for streaming
 
-// Function to encode strings using a predefined alphabet-number mapping
-uchar[] EncodeString(string input)
+
+
+void OnInit()
 {
-    uchar encoded[];
-    for (int i = 0; i < StringLen(input); i++)
+    restServer = new ServerSocket(restServerPort, true);
+    if (!restServer.Created())
     {
-        uchar ch = (uchar)StringGetCharacter(input, i);
-        ArrayResize(encoded, ArraySize(encoded) + 1);
-        encoded[ArraySize(encoded) - 1] = ch + 42;  // Simple shift encoding
+        Print("Failed to create REST server socket on port ", restServerPort);
+        return;
     }
-    return encoded;
+    Print("MQL5 REST server started on port ", restServerPort);
+
+    streamingServer = new ServerSocket(streamingServerPort, true);
+    if (!streamingServer.Created())
+    {
+        Print("Failed to create streaming server socket on port ", streamingServerPort);
+        return;
+    }
+    Print("MQL5 streaming server started on port ", streamingServerPort);
+
+    lastBarTime = iTime(_Symbol, PERIOD_CURRENT, 0);
+    EventSetTimer(timerInterval);
 }
 
-// Various helper functions
-uchar[] GetBrokerServerTime()
+void OnDeinit(const int reason)
 {
-    string serverTimeString = "F005^1^" + IntegerToString(TimeCurrent());
-    return EncodeString(serverTimeString);
+    EventKillTimer();
+    
+    if (restServer != NULL)
+    {
+        restServer.Close();
+        delete restServer;
+    }
+
+    if (streamingServer != NULL)
+    {
+        streamingServer.Close();
+        delete streamingServer;
+    }
 }
 
-uchar[] GetCheckConnection()
+void OnTimer()
 {
-    return EncodeString("F000^1^OK");
+    if (restServer != NULL)
+    {
+        Socket client = restServer.Accept();
+        if (client.IsConnected())
+        {
+            ProcessClient(client);
+            client.Close();
+        }
+    }
+
+    if (streamingServer != NULL)
+    {
+        Socket newClient = streamingServer.Accept();
+        if (newClient.IsConnected())
+        {
+            Print("New streaming client connected: ", newClient.RemoteAddress());
+            ArrayResize(streamingClients, ArraySize(streamingClients) + 1);
+            streamingClients[ArraySize(streamingClients) - 1] = newClient;
+        }
+    }
 }
 
-uchar[] GetStaticAccountInfo()
-{
-    string accountInfo = "F001^10^" + AccountInfoString(ACCOUNT_NAME) + "^" +
-                         IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN)) + "^" +
-                         AccountInfoString(ACCOUNT_CURRENCY) + "^" +
-                         IntegerToString(AccountInfoInteger(ACCOUNT_TRADE_MODE)) + "^" +
-                         IntegerToString(AccountInfoInteger(ACCOUNT_LEVERAGE)) + "^" +
-                         BoolToString(AccountInfoInteger(ACCOUNT_TRADE_ALLOWED)) + "^" +
-                         IntegerToString(AccountInfoInteger(ACCOUNT_LIMIT_ORDERS)) + "^" +
-                         IntegerToString(AccountInfoInteger(ACCOUNT_MARGIN_SO_CALL)) + "^" +
-                         IntegerToString(AccountInfoInteger(ACCOUNT_MARGIN_SO_SO)) + "^" +
-                         AccountInfoString(ACCOUNT_COMPANY) + "^";
-    return EncodeString(accountInfo);
-}
-
-uchar[] GetDynamicAccountInfo()
-{
-    string accountData = "F002^6^" + DoubleToString(AccountInfoDouble(ACCOUNT_BALANCE), 2) + "^" +
-                         DoubleToString(AccountInfoDouble(ACCOUNT_EQUITY), 2) + "^" +
-                         DoubleToString(AccountInfoDouble(ACCOUNT_PROFIT), 2) + "^" +
-                         DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN), 2) + "^" +
-                         DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN_LEVEL), 2) + "^" +
-                         DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN_FREE), 2) + "^";
-    return EncodeString(accountData);
-}
-
-uchar[] GetInstrumentInfo(string symbol)
-{
-    string instrumentInfo = "F003^3^" + symbol + "^" +
-                            DoubleToString(SymbolInfoDouble(symbol, SYMBOL_BID), 5) + "^" +
-                            DoubleToString(SymbolInfoDouble(symbol, SYMBOL_ASK), 5) + "^";
-    return EncodeString(instrumentInfo);
-}
-
-uchar[] GetBrokerInstrumentNames()
-{
-    string instruments = "F007^1^" + TerminalInfoString(TERMINAL_NAME);
-    return EncodeString(instruments);
-}
-
-uchar[] CheckMarketWatch(string symbol)
-{
-    bool isWatched = SymbolSelect(symbol, true);
-    return EncodeString("F004^1^" + (isWatched ? "YES" : "NO"));
-}
-
-uchar[] CheckTradingAllowed(string symbol)
-{
-    bool tradingAllowed = SymbolInfoInteger(symbol, SYMBOL_TRADE_MODE) != SYMBOL_TRADE_MODE_DISABLED;
-    return EncodeString("F008^1^" + (tradingAllowed ? "YES" : "NO"));
-}
-
-uchar[] CheckTerminalServerConnection()
-{
-    return EncodeString("F011^1^" + (TerminalInfoInteger(TERMINAL_CONNECTED) ? "CONNECTED" : "DISCONNECTED"));
-}
-
-uchar[] CheckTerminalType()
-{
-    return EncodeString("F012^1^" + TerminalInfoString(TERMINAL_NAME));
-}
-
-uchar[] GetLastTickInfo()
+void OnTick()
 {
     MqlTick lastTick;
     if (SymbolInfoTick(_Symbol, lastTick))
     {
-        string tickInfo = "F020^6^" + IntegerToString(lastTick.time) + "^" +
-                          DoubleToString(lastTick.bid, 5) + "^" +
-                          DoubleToString(lastTick.ask, 5) + "^" +
-                          DoubleToString(lastTick.last, 5) + "^" +
-                          IntegerToString(lastTick.volume) + "^";
-        return EncodeString(tickInfo);
+        uchar tickData[];
+        string tickString = "F020^6^" + IntegerToString(lastTick.time) + "^" +
+                            DoubleToString(lastTick.bid, 5) + "^" +
+                            DoubleToString(lastTick.ask, 5) + "^" +
+                            DoubleToString(lastTick.last, 5) + "^" +
+                            IntegerToString(lastTick.volume) + "^";
+        tickData = EncodeString(tickString);
+        BroadcastStreamingData(tickData);
     }
-    return EncodeString("F020^1^ERROR");
-}
-
-void BroadcastStreamingData(const uchar &data[])
-{
-    for (int i = 0; i < ArraySize(streamingClients); i++)
+    
+    // Detect new bar
+    datetime currentBarTime = iTime(_Symbol, PERIOD_CURRENT, 0);
+    if (currentBarTime > lastBarTime)
     {
-        if (streamingClients[i].IsConnected())
-        {
-            streamingClients[i].Send(data);
-        }
+        lastBarTime = currentBarTime;
+        double open = iOpen(_Symbol, PERIOD_CURRENT, 0);
+        double high = iHigh(_Symbol, PERIOD_CURRENT, 0);
+        double low = iLow(_Symbol, PERIOD_CURRENT, 0);
+        double close = iClose(_Symbol, PERIOD_CURRENT, 0);
+        long volume = iVolume(_Symbol, PERIOD_CURRENT, 0);
+        
+        string barString = "F021^6^" + IntegerToString(currentBarTime) + "^" +
+                           DoubleToString(open, 5) + "^" +
+                           DoubleToString(high, 5) + "^" +
+                           DoubleToString(low, 5) + "^" +
+                           DoubleToString(close, 5) + "^" +
+                           IntegerToString(volume) + "^";
+        uchar barData[] = EncodeString(barString);
+        BroadcastStreamingData(barData);
     }
 }
