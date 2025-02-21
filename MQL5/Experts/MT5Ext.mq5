@@ -15,21 +15,8 @@ datetime lastBarTime = 0;
 
 void OnInit()
 {
-    restServer = new ServerSocket(REST_SERVER_PORT, true);
-    if (!restServer.Created())
-    {
-        Print("Failed to create REST server socket on port ", REST_SERVER_PORT);
-        return;
-    }
-    Print("MQL5 REST server started on port ", REST_SERVER_PORT);
-
-    streamingServer = new ServerSocket(STREAM_SERVER_PORT, true);
-    if (!streamingServer.Created())
-    {
-        Print("Failed to create streaming server socket on port ", STREAM_SERVER_PORT);
-        return;
-    }
-    Print("MQL5 streaming server started on port ", STREAM_SERVER_PORT);
+    CreateRestServer(REST_SERVER_PORT);
+    CreateStreamingServer(STREAM_SERVER_PORT);
 
     lastBarTime = iTime(_Symbol, PERIOD_CURRENT, 0);
     EventSetTimer(TIMER_INTERVAL);

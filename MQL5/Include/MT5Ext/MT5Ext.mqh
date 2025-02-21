@@ -10,6 +10,34 @@ ServerSocket restServer;
 ServerSocket streamingServer;
 ClientSocket streamingClients[];  // Store connected clients for streaming
 
+// Create a new server socket for REST server
+void CreateRestServer(int port)
+{
+    restServer = new ServerSocket(port, true);
+    if (!restServer.Created())
+    {
+        Print("Failed to create REST server socket on port ", port);
+    }
+    else
+    {
+        Print("MQL5 REST server started on port ", port);
+    }
+}
+
+// Create a new server socket for streaming server
+void CreateStreamingServer(int port)
+{
+    streamingServer = new ServerSocket(port, true);
+    if (!streamingServer.Created())
+    {
+        Print("Failed to create streaming server socket on port ", port);
+    }
+    else
+    {
+        Print("MQL5 streaming server started on port ", port);
+    }
+}
+
 // Function to encode strings using a predefined alphabet-number mapping
 uchar[] EncodeString(string input)
 {
