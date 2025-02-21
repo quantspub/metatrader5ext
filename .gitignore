@@ -10,3 +10,4 @@ metatrader5ext/*.so
 metatrader5ext/*.html
 metatrader5ext/*.c
 metatrader5ext.egg-info
+MT5Ext_*

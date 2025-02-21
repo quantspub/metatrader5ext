@@ -6,10 +6,10 @@
 
 #include <MT5Ext\MT5Ext.mqh>
 
-input int restServerPort = 1111;   // REST server for commands
-input int streamingServerPort = 2222; // Streaming server for real-time data and responses
-input int timerInterval = 1;    // Timer interval for the REST server
-input bool onlyStreamMode = false; // If enabled, responses will be sent via stream server
+input int REST_SERVER_PORT = 1111;   // REST server for commands
+input int STREAM_SERVER_PORT = 2222; // Streaming server for real-time data and responses
+input int TIMER_INTERVAL = 1;    // Timer interval for the REST server
+input bool ONLY_STREAM_MODE = false; // If enabled, responses will be sent via stream server
 
 datetime lastBarTime = 0;
 
@@ -17,28 +17,26 @@ ServerSocket restServer;
 ServerSocket streamingServer;
 Socket streamingClients[];  // Store connected clients for streaming
 
-
-
 void OnInit()
 {
-    restServer = new ServerSocket(restServerPort, true);
+    restServer = new ServerSocket(REST_SERVER_PORT, true);
     if (!restServer.Created())
     {
-        Print("Failed to create REST server socket on port ", restServerPort);
+        Print("Failed to create REST server socket on port ", REST_SERVER_PORT);
         return;
     }
-    Print("MQL5 REST server started on port ", restServerPort);
+    Print("MQL5 REST server started on port ", REST_SERVER_PORT);
 
-    streamingServer = new ServerSocket(streamingServerPort, true);
+    streamingServer = new ServerSocket(STREAM_SERVER_PORT, true);
     if (!streamingServer.Created())
     {
-        Print("Failed to create streaming server socket on port ", streamingServerPort);
+        Print("Failed to create streaming server socket on port ", STREAM_SERVER_PORT);
         return;
     }
-    Print("MQL5 streaming server started on port ", streamingServerPort);
+    Print("MQL5 streaming server started on port ", STREAM_SERVER_PORT);
 
     lastBarTime = iTime(_Symbol, PERIOD_CURRENT, 0);
-    EventSetTimer(timerInterval);
+    EventSetTimer(TIMER_INTERVAL);
 }
 
 void OnDeinit(const int reason)
