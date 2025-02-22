@@ -7,8 +7,8 @@
 #include <MT5Ext\socket-library-mt4-mt5.mqh>
 #include <MT5Ext\utils.mqh>
 
-ServerSocket restServer;
-ServerSocket streamingServer;
+ServerSocket *restServer;
+ServerSocket *streamingServer;
 ClientSocket streamingClients[];  // Store connected clients for streaming
 
 
@@ -147,7 +147,7 @@ void BroadcastStreamingData(const uchar &data[])
 {
     for (int i = 0; i < ArraySize(streamingClients); i++)
     {
-        if (streamingClients[i].IsConnected())
+        if (streamingClients[i].IsSocketConnected())
         {
             streamingClients[i].Send(data);
         }

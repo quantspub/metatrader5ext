@@ -36,22 +36,23 @@ void OnTimer()
 {
     if (restServer != NULL)
     {
-        ClientSocket client = restServer.Accept();
-        if (client.IsConnected())
+        ClientSocket *client = restServer.Accept();
+        if (client != NULL && client.IsSocketConnected())
         {
-            ProcessClient(client);
+            ProcessClient(*client);
             client.Close();
+            delete client;
         }
     }
 
     if (streamingServer != NULL)
     {
-        ClientSocket newClient = streamingServer.Accept();
-        if (newClient.IsConnected())
+        ClientSocket *newClient = streamingServer.Accept();
+        if (newClient != NULL && newClient.IsSocketConnected())
         {
             Print("New streaming client connected: ", newClient.RemoteAddress());
             ArrayResize(streamingClients, ArraySize(streamingClients) + 1);
-            streamingClients[ArraySize(streamingClients) - 1] = newClient;
+            streamingClients[ArraySize(streamingClients) - 1] = *newClient;
         }
     }
 }
