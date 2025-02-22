@@ -35,27 +35,7 @@ void OnDeinit(const int reason)
 
 void OnTimer()
 {
-    if (restServer != NULL)
-    {
-        ClientSocket *client = restServer.Accept();
-        if (client != NULL && client.IsSocketConnected())
-        {
-            ProcessClient(*client);
-            client.Close();
-            delete client;
-        }
-    }
-
-    if (streamingServer != NULL)
-    {
-        ClientSocket *newClient = streamingServer.Accept();
-        if (newClient != NULL && newClient.IsSocketConnected())
-        {
-            Print("New streaming client connected: ", newClient.RemoteAddress());
-            ArrayResize(streamingClients, ArraySize(streamingClients) + 1);
-            streamingClients[ArraySize(streamingClients) - 1] = *newClient;
-        }
-    }
+    AcceptClients(ONLY_STREAM_MODE);
 }
 
 void OnTick()

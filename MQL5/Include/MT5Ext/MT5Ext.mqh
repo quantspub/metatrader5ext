@@ -51,6 +51,31 @@ void CloseServers()
     }
 }
 
+void AcceptClients(bool onlyStream = false)
+{
+    if (restServer != NULL)
+    {
+        ClientSocket *client = restServer.Accept();
+        if (client != NULL && client.IsSocketConnected())
+        {
+            ProcessClient(*client);
+            client.Close();
+            delete client;
+        }
+    }
+
+    if (streamingServer != NULL)
+    {
+        ClientSocket *newClient = streamingServer.Accept();
+        if (newClient != NULL && newClient.IsSocketConnected())
+        {
+            Print("New streaming client connected: ", newClient.RemoteAddress());
+            ArrayResize(streamingClients, ArraySize(streamingClients) + 1);
+            streamingClients[ArraySize(streamingClients) - 1] = *newClient;
+        }
+    }
+}
+
 // Various helper functions
 uchar[] EncodeString(string input)
 {
