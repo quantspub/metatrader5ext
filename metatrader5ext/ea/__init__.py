@@ -1,5 +1,5 @@
 try:
-    from metatrader5ext.streaming.data_stream import MetaTrader5Streamer
+    from metatrader5ext.ea.data_stream import MetaTrader5Streamer
 
     # TODO: Switch Streaming core to MQTT:
     # https://github.com/eclipse-paho/paho.mqtt.python/
