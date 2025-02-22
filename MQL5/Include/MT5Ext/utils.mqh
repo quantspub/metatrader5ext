@@ -1,7 +1,7 @@
 // Collection of misc tools for MQL5
 
 // Logging setup
-int loggerLevel = LOG_LEVEL_DEBUG; // Custom log level, adjust as needed
+// int loggerLevel = LOG_LEVEL_DEBUG; // Custom log level, adjust as needed
 
 // Custom exception classes
 class BadMessage {
