@@ -49,7 +49,8 @@ Example for using MetaTrader5Streamer:
 """
 
 from rpyc.utils.classic import DEFAULT_SERVER_PORT
-from .import_mt5_modules import MetaTrader5, MetaTrader5Streamer
+from .MetaTrader5 import MetaTrader5
+from .ea import MetaTrader5Client
 from .metatrader5ext import MetaTrader5Ext, MetaTrader5ExtConfig
 from .symbol import Symbol, SymbolInfo, process_symbol_details
 from .order import Order, OrderState
@@ -75,7 +76,7 @@ except ImportError as e:
 
 __all__ = [
     "MetaTrader5",
-    "MetaTrader5Streamer",
+    "MetaTrader5Client",
     "DockerizedMT5TerminalConfig",
     "DockerizedMT5Terminal",
     "ContainerStatus",
