@@ -8,6 +8,7 @@ Copyright (C) 2019 Interactive Brokers LLC. All rights reserved. This code is su
 This module has tools for implementing the IB low level messaging.
 """
 
+# TODO:use utf instead of ascii 
 
 import struct
 import logging
