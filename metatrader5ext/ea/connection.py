@@ -38,7 +38,7 @@ class Connection:
                 if data:
                     print("\nStream Update:", data.decode('utf-8'))
                     # can use a callback here
-                    return data.decode('utf-8')
+                    # callback(data.decode('utf-8'))
         except Exception as e:
             print(f"Streaming error: {e}")
 
