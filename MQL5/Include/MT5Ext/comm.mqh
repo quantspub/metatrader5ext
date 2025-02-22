@@ -1,7 +1,6 @@
 //+------------------------------------------------------------------+
 //|  MQL5 Implementation of IB Low-Level Messaging                   |
 //+------------------------------------------------------------------+
-#include <MT5Ext/socket-library-mt4-mt5.mqh>
 
 // Function to encode a message with a length prefix
 uchar[] MakeMessage(string text)

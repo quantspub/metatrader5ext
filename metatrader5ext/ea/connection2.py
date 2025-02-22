@@ -1,7 +1,8 @@
+
 import socket
 import threading
 
-class MQL5Client:
+class Connection:
     def __init__(self, rest_host='127.0.0.1', rest_port=1111, stream_host='127.0.0.1', stream_port=2222):
         self.rest_host = rest_host
         self.rest_port = rest_port
@@ -67,7 +68,7 @@ class MQL5Client:
         return bytes(uncompressed)
 
 if __name__ == "__main__":
-    client = MQL5Client()
+    client = Connection()
     
     # Test REST requests
     print("Checking connection:", client.send_request("F000^1^"))
@@ -78,4 +79,4 @@ if __name__ == "__main__":
     client.start_streaming()
     input("Press Enter to stop streaming...")
     client.stop_streaming()
-            
+
