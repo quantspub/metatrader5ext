@@ -1,5 +1,6 @@
-from .connection import Connection
 import asyncio
+from .connection import Connection
+from .errors import ERROR_DICT
 
 class EAClient(Connection):
     def __init__(self):
@@ -12,7 +13,6 @@ class EAClient(Connection):
 
         try:
             ok, data_string = await self.send_command(command)
-
             if not ok:
                 self.command_ok = False
                 return False
@@ -20,21 +20,23 @@ class EAClient(Connection):
             if self.debug:
                 print(data_string)
 
-            x = data_string.split('^')
-
-            if x[1] == 'OK':
-                self.timeout = False
-                self.command_ok = True
-                return True
-            else:
-                self.timeout = True
-                self.command_return_error = ERROR_DICT['99900']
-                self.command_ok = True
-                return False
+            return self._process_connection_response(data_string)
         except Exception as error:
             self.command_return_error = ERROR_DICT['00001']
             self.command_ok = False
             raise Exception(f"Connection check failed: {error}")
+
+    def _process_connection_response(self, data_string):
+        x = data_string.split('^')
+        if x[1] == 'OK':
+            self.timeout = False
+            self.command_ok = True
+            return True
+        else:
+            self.timeout = True
+            self.command_return_error = ERROR_DICT['99900']
+            self.command_ok = True
+            return False
 
     def get_static_account_info(self):
         """ Fetches the static account information from the MetaTrader 5 EA. """
