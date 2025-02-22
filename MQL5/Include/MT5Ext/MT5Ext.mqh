@@ -11,9 +11,6 @@ ServerSocket *restServer;
 ServerSocket *streamingServer;
 ClientSocket streamingClients[];  // Store connected clients for streaming
 
-
-// TODO: use utf instead of ASCII 
-
 // Create a new server socket for REST and streaming servers
 void StartServers(ushort restPort, ushort streamPort, bool ForLocalhostOnly = true)
 {
@@ -38,7 +35,7 @@ void StartServers(ushort restPort, ushort streamPort, bool ForLocalhostOnly = tr
     }
 }
 
-// close and delete the server sockets
+// Close and delete the server sockets
 void CloseServers()
 {
     if (restServer != NULL)
@@ -55,6 +52,18 @@ void CloseServers()
 }
 
 // Various helper functions
+uchar[] EncodeString(string input)
+{
+    uchar encoded[];
+    for (int i = 0; i < StringLen(input); i++)
+    {
+        uchar ch = (uchar)StringGetCharacter(input, i);
+        ArrayResize(encoded, ArraySize(encoded) + 1);
+        encoded[ArraySize(encoded) - 1] = ch + 42;  // Simple shift encoding
+    }
+    return encoded;
+}
+
 uchar[] GetBrokerServerTime()
 {
     string serverTimeString = "F005^1^" + IntegerToString(TimeCurrent());
@@ -153,7 +162,6 @@ void BroadcastStreamingData(const uchar &data[])
         }
     }
 }
-
 
 void ProcessClient(ClientSocket &client)
 {
