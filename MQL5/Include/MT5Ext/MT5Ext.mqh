@@ -89,12 +89,15 @@ void AcceptClients(bool onlyStream)
 
 void ProcessClient(ClientSocket &client, bool onlyStream)
 {
-    uchar buffer[1024];
+    uchar buffer[4098];
     int received = client.Receive(buffer);
 
     if (received > 0)
     {
-        string request = CharArrayToString(buffer, received);
+        Print("Received ", received, " bytes from client: ", &client);
+        // Print("Received data: ");
+        // ArrayPrint(buffer);
+        string request = CharArrayToString(buffer, 0, received);
         Print("Received request: " + request);
 
         string response;

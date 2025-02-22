@@ -9,12 +9,12 @@ class Connection:
         self.stream_socket = None
         self.running = False
 
-    def send_request(self, command: str) -> str:
+    def send_request(self, message: str) -> str:
         """ Sends a request to the REST server and returns the decoded response. """
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.connect((self.host, self.rest_port))
-                s.sendall(command.encode('utf-16'))
+                s.sendall(message.encode('utf-8'))
                 response = s.recv(1024)
                 return response.decode('utf-8')
         except Exception as e:
@@ -52,9 +52,9 @@ if __name__ == "__main__":
     client = Connection()
     
     # Test REST requests
-    print("Checking connection:", client.send_request("F000"))
-    print("Fetching account info:", client.send_request("F001^1^"))
-    print("Fetching last tick info:", client.send_request("F020^2^"))
+    print("Checking connection:", client.send_request("F000^1^"))
+    # print("Fetching account info:", client.send_request("F001^1^"))
+    # print("Fetching last tick info:", client.send_request("F020^2^"))
     
     # # Start streaming updates
     # client.start_streaming()
