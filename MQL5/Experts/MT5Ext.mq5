@@ -26,16 +26,10 @@ void OnDeinit(const int reason)
 {
     EventKillTimer();
     
-    if (restServer != NULL)
+    CloseServers();
+    for (int i = 0; i < ArraySize(streamingClients); i++)
     {
-        restServer.Close();
-        delete restServer;
-    }
-
-    if (streamingServer != NULL)
-    {
-        streamingServer.Close();
-        delete streamingServer;
+        streamingClients[i].Close();
     }
 }
 

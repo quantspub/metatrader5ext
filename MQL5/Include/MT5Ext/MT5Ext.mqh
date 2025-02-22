@@ -38,6 +38,22 @@ void CreateStreamingServer(int port)
     }
 }
 
+// close and delete the server sockets
+void CloseServers()
+{
+    if (restServer != NULL)
+    {
+        restServer.Close();
+        delete restServer;
+    }
+
+    if (streamingServer != NULL)
+    {
+        streamingServer.Close();
+        delete streamingServer;
+    }
+}
+
 // Function to encode strings using a predefined alphabet-number mapping
 uchar[] EncodeString(string input)
 {
