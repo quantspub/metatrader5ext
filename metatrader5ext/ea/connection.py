@@ -1,16 +1,23 @@
 import socket
 import threading
+from typing import Optional
 
 class Connection:
-    def __init__(self, host='127.0.0.1', rest_port=15556, stream_port=15557):
+    host: str
+    rest_port: int
+    stream_port: int
+    stream_socket: Optional[socket.socket]
+    running: bool
+
+    def __init__(self, host: str = '127.0.0.1', rest_port: int = 15556, stream_port: int = 15557) -> None:
         self.host = host
         self.rest_port = rest_port
         self.stream_port = stream_port
         self.stream_socket = None
         self.running = False
 
-    def send_request(self, message: str) -> str:
-        """ Sends a request to the REST server and returns the decoded response. """
+    def send_command(self, message: str) -> str:
+        """ Sends a request command to the REST server and returns the decoded response. """
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.connect((self.host, self.rest_port))
@@ -20,7 +27,7 @@ class Connection:
         except Exception as e:
             return f"Error: {e}"
 
-    def start_streaming(self):
+    def start_streaming(self) -> None:
         """ Connects to the streaming server and continuously listens for updates. """
         try:
             self.stream_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -30,7 +37,7 @@ class Connection:
         except Exception as e:
             print(f"Streaming connection error: {e}")
 
-    def _listen_stream(self):
+    def _listen_stream(self) -> None:
         """ Internal method to listen for streaming data. """
         try:
             while self.running:
@@ -42,22 +49,9 @@ class Connection:
         except Exception as e:
             print(f"Streaming error: {e}")
 
-    def stop_streaming(self):
+    def stop_streaming(self) -> None:
         """ Stops the streaming connection. """
         self.running = False
         if self.stream_socket:
             self.stream_socket.close()
-
-if __name__ == "__main__":
-    client = Connection()
-    
-    # Test REST requests
-    print("Checking connection:", client.send_request("F000^1^"))
-    print("Fetching account info:", client.send_request("F001^1^"))
-    print("Fetching last tick info:", client.send_request("F020^2^"))
-    
-    # Start streaming updates
-    client.start_streaming()
-    input("Press Enter to stop streaming...")
-    client.stop_streaming()
 

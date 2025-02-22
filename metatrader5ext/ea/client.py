@@ -1,4 +1,59 @@
-class EAClient:
+from .connection import Connection
+import asyncio
+
+class EAClient(Connection):
     def __init__(self):
-        pass
+        super().__init__()
+        self.debug = False
+
+    async def check_connection(self):
+        command = 'F000^1^'
+        self.command_return_error = ''
+
+        try:
+            ok, data_string = await self.send_command(command)
+
+            if not ok:
+                self.command_ok = False
+                return False
+
+            if self.debug:
+                print(data_string)
+
+            x = data_string.split('^')
+
+            if x[1] == 'OK':
+                self.timeout = False
+                self.command_ok = True
+                return True
+            else:
+                self.timeout = True
+                self.command_return_error = ERROR_DICT['99900']
+                self.command_ok = True
+                return False
+        except Exception as error:
+            self.command_return_error = ERROR_DICT['00001']
+            self.command_ok = False
+            raise Exception(f"Connection check failed: {error}")
+
+    def get_static_account_info(self):
+        """ Fetches the static account information from the MetaTrader 5 EA. """
+        return "Account Info: Balance=10000, Equity=10000, Free Margin=10000"
     
+    def get_dynamic_account_info(self):
+        """ Fetches the dynamic account information from the MetaTrader 5 EA. """
+        return "Account Info: Balance=10000, Equity=10000, Free Margin=10000"
+
+
+# if __name__ == "__main__":
+#     client = Connection()
+    
+#     # Test REST requests
+#     print("Checking connection:", client.send_request("F000^1^"))
+#     print("Fetching account info:", client.send_request("F001^1^"))
+#     print("Fetching last tick info:", client.send_request("F020^2^"))
+    
+#     # Start streaming updates
+#     client.start_streaming()
+#     input("Press Enter to stop streaming...")
+#     client.stop_streaming()
