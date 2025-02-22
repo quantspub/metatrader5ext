@@ -14,7 +14,7 @@ class Connection:
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.connect((self.host, self.rest_port))
-                s.sendall(command.encode('utf-8'))
+                s.sendall(command.encode('utf-16'))
                 response = s.recv(1024)
                 return response.decode('utf-8')
         except Exception as e:
@@ -37,6 +37,8 @@ class Connection:
                 data = self.stream_socket.recv(1024)
                 if data:
                     print("\nStream Update:", data.decode('utf-8'))
+                    # can use a callback here
+                    return data.decode('utf-8')
         except Exception as e:
             print(f"Streaming error: {e}")
 
@@ -50,12 +52,12 @@ if __name__ == "__main__":
     client = Connection()
     
     # Test REST requests
-    print("Checking connection:", client.send_request("F000^1^"))
+    print("Checking connection:", client.send_request("F000"))
     print("Fetching account info:", client.send_request("F001^1^"))
     print("Fetching last tick info:", client.send_request("F020^2^"))
     
-    # Start streaming updates
-    client.start_streaming()
-    input("Press Enter to stop streaming...")
-    client.stop_streaming()
+    # # Start streaming updates
+    # client.start_streaming()
+    # input("Press Enter to stop streaming...")
+    # client.stop_streaming()
 

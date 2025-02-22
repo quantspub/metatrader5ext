@@ -68,6 +68,8 @@ void AcceptClients(bool onlyStream)
         ClientSocket *client = restServer.Accept();
         if (client != NULL && client.IsSocketConnected())
         {
+            Print("New REST client connected: ", client);
+            Print("Processing client request...");
             ProcessClient(*client, onlyStream);
             delete client;
         }
@@ -93,7 +95,7 @@ void ProcessClient(ClientSocket &client, bool onlyStream)
     if (received > 0)
     {
         string request = CharArrayToString(buffer, received);
-        Print("Received request: ", request);
+        Print("Received request: " + request);
 
         string response;
 
