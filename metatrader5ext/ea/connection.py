@@ -16,8 +16,8 @@ class Connection:
         self.stream_socket = None
         self.running = False
 
-    def send_command(self, message: str) -> str:
-        """ Sends a request command to the REST server and returns the decoded response. """
+    def send_mesaage(self, message: str) -> str:
+        """ Sends a request message/command to the REST server and returns the decoded response. """
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.connect((self.host, self.rest_port))
