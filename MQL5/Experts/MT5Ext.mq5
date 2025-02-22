@@ -6,8 +6,8 @@
 
 #include <MT5Ext\MT5Ext.mqh>
 
-input int REST_SERVER_PORT = 1111;   // REST server for commands
-input int STREAM_SERVER_PORT = 2222; // Streaming server for real-time data and responses
+input ushort REST_SERVER_PORT = 1111;   // REST server for commands
+input ushort STREAM_SERVER_PORT = 2222; // Streaming server for real-time data and responses
 input int TIMER_INTERVAL = 1;    // Timer interval for the REST server
 input bool ONLY_STREAM_MODE = false; // If enabled, responses will be sent via stream server
 
@@ -15,8 +15,7 @@ datetime lastBarTime = 0;
 
 void OnInit()
 {
-    CreateRestServer(REST_SERVER_PORT);
-    CreateStreamingServer(STREAM_SERVER_PORT);
+    StartServers(REST_SERVER_PORT, STREAM_SERVER_PORT, true);
 
     lastBarTime = iTime(_Symbol, PERIOD_CURRENT, 0);
     EventSetTimer(TIMER_INTERVAL);

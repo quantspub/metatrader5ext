@@ -4,7 +4,7 @@
 #property copyright "QuantsPub"
 #property version "0.1"
 
-#include <socket-library-mt4-mt5.mqh>
+#include <MT5Ext\socket-library-mt4-mt5.mqh>
 
 ServerSocket restServer;
 ServerSocket streamingServer;
@@ -13,31 +13,27 @@ ClientSocket streamingClients[];  // Store connected clients for streaming
 
 // TODO: use utf instead of ASCII 
 
-// Create a new server socket for REST server
-void CreateRestServer(int port)
+// Create a new server socket for REST and streaming servers
+void StartServers(ushort restPort, ushort streamPort, bool ForLocalhostOnly = true)
 {
-    restServer = new ServerSocket(port, true);
+    restServer = new ServerSocket(restPort, ForLocalhostOnly);
     if (!restServer.Created())
     {
-        Print("Failed to create REST server socket on port ", port);
+        Print("Failed to create REST server socket on port ", restPort);
     }
     else
     {
-        Print("MQL5 REST server started on port ", port);
+        Print("MQL5 REST server started on port ", restPort);
     }
-}
 
-// Create a new server socket for streaming server
-void CreateStreamingServer(int port)
-{
-    streamingServer = new ServerSocket(port, true);
+    streamingServer = new ServerSocket(streamPort, true);
     if (!streamingServer.Created())
     {
-        Print("Failed to create streaming server socket on port ", port);
+        Print("Failed to create streaming server socket on port ", streamPort);
     }
     else
     {
-        Print("MQL5 streaming server started on port ", port);
+        Print("MQL5 streaming server started on port ", streamPort);
     }
 }
 
