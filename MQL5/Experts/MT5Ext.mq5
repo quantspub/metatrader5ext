@@ -36,7 +36,7 @@ void OnTimer()
 {
     if (restServer != NULL)
     {
-        Socket client = restServer.Accept();
+        ClientSocket client = restServer.Accept();
         if (client.IsConnected())
         {
             ProcessClient(client);
@@ -46,7 +46,7 @@ void OnTimer()
 
     if (streamingServer != NULL)
     {
-        Socket newClient = streamingServer.Accept();
+        ClientSocket newClient = streamingServer.Accept();
         if (newClient.IsConnected())
         {
             Print("New streaming client connected: ", newClient.RemoteAddress());
