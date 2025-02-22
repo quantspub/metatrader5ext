@@ -93,6 +93,8 @@ void ProcessClient(ClientSocket &client, bool onlyStream)
     if (received > 0)
     {
         string request = CharArrayToString(buffer, received);
+        Print("Received request: ", request);
+
         string response;
 
         if (request == "F000^1^")
