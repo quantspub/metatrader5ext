@@ -32,22 +32,8 @@ string decimalMaxString(double val) {
 // 
 // 
 
-
-// Function to encode strings using a predefined alphabet-number mapping
-// uchar EncodeString(string input)
-// {
-//     uchar encoded[];
-//     for (int i = 0; i < StringLen(input); i++)
-//     {
-//         uchar ch = (uchar)StringGetCharacter(input, i);
-//         ArrayResize(encoded, ArraySize(encoded) + 1);
-//         encoded[ArraySize(encoded) - 1] = ch + 42;  // Simple shift encoding
-//     }
-//     return encoded;
-// }
-
 // Function to compress a string using a basic run-length encoding (RLE) algorithm
-// uchar CompressString(string input)
+// uchar[] CompressString(string input)
 // {
 //     uchar compressed[];
 //     int len = StringLen(input);
@@ -74,7 +60,7 @@ string decimalMaxString(double val) {
 // }
 
 // // Function to encode and compress strings
-// uchar EncodeStringWithRLECompression(string input)
+// uchar[] EncodeStringWithRLECompression(string input)
 // {
 //     uchar encoded[];
 //     uchar compressed[] = CompressString(input);

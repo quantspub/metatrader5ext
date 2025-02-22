@@ -50,7 +50,7 @@ void CloseServers()
 
     for (int i = 0; i < ArraySize(streamingClients); i++)
     {
-        delete streamingClients[i];
+        delete &streamingClients[i];
     }
 }
 
@@ -61,8 +61,7 @@ void AcceptClients(bool onlyStream = false)
         ClientSocket *client = restServer.Accept();
         if (client != NULL && client.IsSocketConnected())
         {
-            ProcessClient(*client);
-            client.Close();
+            ProcessClient(*client, OnlyStream);
             delete client;
         }
     }
@@ -72,7 +71,7 @@ void AcceptClients(bool onlyStream = false)
         ClientSocket *newClient = streamingServer.Accept();
         if (newClient != NULL && newClient.IsSocketConnected())
         {
-            Print("New streaming client connected: ", newClient.RemoteAddress());
+            Print("New streaming client connected: ", newClient);
             ArrayResize(streamingClients, ArraySize(streamingClients) + 1);
             streamingClients[ArraySize(streamingClients) - 1] = *newClient;
         }
@@ -80,30 +79,19 @@ void AcceptClients(bool onlyStream = false)
 }
 
 // Various helper functions
-uchar[] EncodeString(string input)
-{
-    uchar encoded[];
-    for (int i = 0; i < StringLen(input); i++)
-    {
-        uchar ch = (uchar)StringGetCharacter(input, i);
-        ArrayResize(encoded, ArraySize(encoded) + 1);
-        encoded[ArraySize(encoded) - 1] = ch + 42;  // Simple shift encoding
-    }
-    return encoded;
-}
 
-uchar[] GetBrokerServerTime()
+string GetBrokerServerTime()
 {
     string serverTimeString = "F005^1^" + IntegerToString(TimeCurrent());
-    return EncodeString(serverTimeString);
+    return serverTimeString;
 }
 
-uchar[] GetCheckConnection()
+string GetCheckConnection()
 {
-    return EncodeString("F000^1^OK");
+    return "F000^1^OK";
 }
 
-uchar[] GetStaticAccountInfo()
+string GetStaticAccountInfo()
 {
     string accountInfo = "F001^10^" + AccountInfoString(ACCOUNT_NAME) + "^" +
                          IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN)) + "^" +
@@ -115,10 +103,10 @@ uchar[] GetStaticAccountInfo()
                          IntegerToString(AccountInfoInteger(ACCOUNT_MARGIN_SO_CALL)) + "^" +
                          IntegerToString(AccountInfoInteger(ACCOUNT_MARGIN_SO_SO)) + "^" +
                          AccountInfoString(ACCOUNT_COMPANY) + "^";
-    return EncodeString(accountInfo);
+    return accountInfo;
 }
 
-uchar[] GetDynamicAccountInfo()
+string GetDynamicAccountInfo()
 {
     string accountData = "F002^6^" + DoubleToString(AccountInfoDouble(ACCOUNT_BALANCE), 2) + "^" +
                          DoubleToString(AccountInfoDouble(ACCOUNT_EQUITY), 2) + "^" +
@@ -126,46 +114,46 @@ uchar[] GetDynamicAccountInfo()
                          DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN), 2) + "^" +
                          DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN_LEVEL), 2) + "^" +
                          DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN_FREE), 2) + "^";
-    return EncodeString(accountData);
+    return accountData;
 }
 
-uchar[] GetInstrumentInfo(string symbol)
+string GetInstrumentInfo(string symbol)
 {
     string instrumentInfo = "F003^3^" + symbol + "^" +
                             DoubleToString(SymbolInfoDouble(symbol, SYMBOL_BID), 5) + "^" +
                             DoubleToString(SymbolInfoDouble(symbol, SYMBOL_ASK), 5) + "^";
-    return EncodeString(instrumentInfo);
+    return instrumentInfo;
 }
 
-uchar[] GetBrokerInstrumentNames()
+string GetBrokerInstrumentNames()
 {
     string instruments = "F007^1^" + TerminalInfoString(TERMINAL_NAME);
-    return EncodeString(instruments);
+    return instruments;
 }
 
-uchar[] CheckMarketWatch(string symbol)
+string CheckMarketWatch(string symbol)
 {
     bool isWatched = SymbolSelect(symbol, true);
-    return EncodeString("F004^1^" + (isWatched ? "YES" : "NO"));
+    return "F004^1^" + (isWatched ? "YES" : "NO");
 }
 
-uchar[] CheckTradingAllowed(string symbol)
+string CheckTradingAllowed(string symbol)
 {
     bool tradingAllowed = SymbolInfoInteger(symbol, SYMBOL_TRADE_MODE) != SYMBOL_TRADE_MODE_DISABLED;
-    return EncodeString("F008^1^" + (tradingAllowed ? "YES" : "NO"));
+    return "F008^1^" + (tradingAllowed ? "YES" : "NO");
 }
 
-uchar[] CheckTerminalServerConnection()
+string CheckTerminalServerConnection()
 {
-    return EncodeString("F011^1^" + (TerminalInfoInteger(TERMINAL_CONNECTED) ? "CONNECTED" : "DISCONNECTED"));
+    return "F011^1^" + (TerminalInfoInteger(TERMINAL_CONNECTED) ? "CONNECTED" : "DISCONNECTED");
 }
 
-uchar[] CheckTerminalType()
+string CheckTerminalType()
 {
-    return EncodeString("F012^1^" + TerminalInfoString(TERMINAL_NAME));
+    return "F012^1^" + TerminalInfoString(TERMINAL_NAME);
 }
 
-uchar[] GetLastTickInfo()
+string GetLastTickInfo()
 {
     MqlTick lastTick;
     if (SymbolInfoTick(_Symbol, lastTick))
@@ -175,12 +163,12 @@ uchar[] GetLastTickInfo()
                           DoubleToString(lastTick.ask, 5) + "^" +
                           DoubleToString(lastTick.last, 5) + "^" +
                           IntegerToString(lastTick.volume) + "^";
-        return EncodeString(tickInfo);
+        return tickInfo;
     }
-    return EncodeString("F020^1^ERROR");
+    return "F020^1^ERROR";
 }
 
-void BroadcastStreamingData(const uchar &data[])
+void BroadcastStreamingData(const string &data)
 {
     for (int i = 0; i < ArraySize(streamingClients); i++)
     {
@@ -191,7 +179,7 @@ void BroadcastStreamingData(const uchar &data[])
     }
 }
 
-void ProcessClient(ClientSocket &client)
+void ProcessClient(ClientSocket &client, bool onlyStream = false)
 {
     uchar buffer[1024];
     int received = client.Receive(buffer);
@@ -199,7 +187,7 @@ void ProcessClient(ClientSocket &client)
     if (received > 0)
     {
         string request = CharArrayToString(buffer, received);
-        uchar response[];
+        string response;
 
         if (request == "F000^1^")
         {
@@ -247,10 +235,10 @@ void ProcessClient(ClientSocket &client)
         }
         else
         {
-            response = EncodeString("F999^1^UNKNOWN_REQUEST");
+            response = "F999^1^UNKNOWN_REQUEST";
         }
 
-        if (ONLY_STREAM_MODE)
+        if (onlyStream)
         {
             BroadcastStreamingData(response);
         }
