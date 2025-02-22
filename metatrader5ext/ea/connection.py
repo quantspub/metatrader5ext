@@ -53,11 +53,11 @@ if __name__ == "__main__":
     
     # Test REST requests
     print("Checking connection:", client.send_request("F000^1^"))
-    # print("Fetching account info:", client.send_request("F001^1^"))
-    # print("Fetching last tick info:", client.send_request("F020^2^"))
+    print("Fetching account info:", client.send_request("F001^1^"))
+    print("Fetching last tick info:", client.send_request("F020^2^"))
     
-    # # Start streaming updates
-    # client.start_streaming()
-    # input("Press Enter to stop streaming...")
-    # client.stop_streaming()
+    # Start streaming updates
+    client.start_streaming()
+    input("Press Enter to stop streaming...")
+    client.stop_streaming()
 
