@@ -1,4 +1,4 @@
-class MetaTrader5Client:
+class EAClient:
     def __init__(self):
         pass
     
