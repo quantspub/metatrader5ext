@@ -13,3 +13,11 @@ except ImportError as e:
 __all__ = [
     "MetaTrader5Streamer",
 ]
+
+"""
+IB low level messaging protocol for financial data streaming.
+
+use sockets not websockets
+use a custom protocol not FIX
+use a custom message format not JSON
+"""
