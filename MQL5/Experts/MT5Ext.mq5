@@ -27,10 +27,6 @@ void OnDeinit(const int reason)
     EventKillTimer();
     
     CloseServers();
-    for (int i = 0; i < ArraySize(streamingClients); i++)
-    {
-        streamingClients[i].Close();
-    }
 }
 
 void OnTimer()

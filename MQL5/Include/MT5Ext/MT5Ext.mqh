@@ -49,6 +49,11 @@ void CloseServers()
         streamingServer.Close();
         delete streamingServer;
     }
+
+    for (int i = 0; i < ArraySize(streamingClients); i++)
+    {
+        streamingClients[i].Close();
+    }
 }
 
 void AcceptClients(bool onlyStream = false)
