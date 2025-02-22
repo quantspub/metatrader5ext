@@ -42,16 +42,22 @@ void CloseServers()
     if (restServer != NULL)
     {
         delete restServer;
+        restServer = NULL;
     }
 
     if (streamingServer != NULL)
     {
         delete streamingServer;
+        streamingServer = NULL;
     }
 
     for (int i = 0; i < ArraySize(streamingClients); i++)
     {
-        delete streamingClients[i];
+        if (streamingClients[i] != NULL)
+        {
+            delete streamingClients[i];
+            streamingClients[i] = NULL;
+        }
     }
 }
 
@@ -78,7 +84,6 @@ void AcceptClients(bool onlyStream)
         }
     }
 }
-
 
 void ProcessClient(ClientSocket &client, bool onlyStream)
 {
@@ -154,7 +159,7 @@ void BroadcastStreamingData(const string &data)
 {
     for (int i = 0; i < ArraySize(streamingClients); i++)
     {
-        if (streamingClients[i].IsSocketConnected())
+        if (streamingClients[i] != NULL && streamingClients[i].IsSocketConnected())
         {
             streamingClients[i].Send(data);
         }

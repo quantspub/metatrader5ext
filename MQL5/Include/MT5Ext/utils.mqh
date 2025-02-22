@@ -32,25 +32,23 @@ string decimalMaxString(double val) {
 // 
 // 
 
+// 
+// 
+// 
 // Function to compress a string using a basic run-length encoding (RLE) algorithm
-// uchar[] CompressString(string input)
-// {
+// uchar CompressString(const string &data) {
 //     uchar compressed[];
-//     int len = StringLen(input);
+//     int len = StringLen(data);
 //     int count = 1;
     
-//     for (int i = 0; i < len; i++)
-//     {
-//         uchar ch = (uchar)StringGetCharacter(input, i);
+//     for (int i = 0; i < len; i++) {
+//         uchar ch = (uchar)StringGetCharacter(data, i);
 //         ArrayResize(compressed, ArraySize(compressed) + 1);
 //         compressed[ArraySize(compressed) - 1] = ch;
         
-//         if (i + 1 < len && StringGetCharacter(input, i) == StringGetCharacter(input, i + 1))
-//         {
+//         if (i + 1 < len && StringGetCharacter(data, i) == StringGetCharacter(data, i + 1)) {
 //             count++;
-//         }
-//         else
-//         {
+//         } else {
 //             ArrayResize(compressed, ArraySize(compressed) + 1);
 //             compressed[ArraySize(compressed) - 1] = (uchar)count;
 //             count = 1;
@@ -60,13 +58,11 @@ string decimalMaxString(double val) {
 // }
 
 // // Function to encode and compress strings
-// uchar[] EncodeStringWithRLECompression(string input)
-// {
+// uchar EncodeStringWithRLECompression(const string &data) {
 //     uchar encoded[];
-//     uchar compressed[] = CompressString(input);
+//     uchar compressed[] = CompressString(data);
     
-//     for (int i = 0; i < ArraySize(compressed); i++)
-//     {
+//     for (int i = 0; i < ArraySize(compressed); i++) {
 //         uchar ch = compressed[i] + 42;  // Simple shift encoding
 //         ArrayResize(encoded, ArraySize(encoded) + 1);
 //         encoded[ArraySize(encoded) - 1] = ch;

@@ -6,7 +6,6 @@
 
 #include <MT5Ext\utils.mqh>
 
-
 // 
 // Various helper functions
 // 
