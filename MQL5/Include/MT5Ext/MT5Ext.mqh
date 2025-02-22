@@ -11,7 +11,7 @@ ServerSocket streamingServer;
 ClientSocket streamingClients[];  // Store connected clients for streaming
 
 
-// use utf instead of ASCII 
+// TODO: use utf instead of ASCII 
 
 // Create a new server socket for REST server
 void CreateRestServer(int port)
