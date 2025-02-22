@@ -11,13 +11,13 @@ class MQL5Client:
         self.running = False
 
     def send_request(self, command: str) -> str:
-        """ Sends a request to the REST server and returns the response. """
+        """ Sends a request to the REST server and returns the decoded response. """
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.connect((self.rest_host, self.rest_port))
                 s.sendall(command.encode('utf-8'))
-                response = s.recv(1024).decode('utf-8')
-                return response
+                response = s.recv(1024)
+                return self.decode_string(self.uncompress_string(response))
         except Exception as e:
             return f"Error: {e}"
 
@@ -37,7 +37,7 @@ class MQL5Client:
             while self.running:
                 data = self.stream_socket.recv(1024)
                 if data:
-                    print("Stream Update:", data.decode('utf-8'))
+                    print("Stream Update:", self.decode_string(self.uncompress_string(data)))
         except Exception as e:
             print(f"Streaming error: {e}")
 
@@ -46,6 +46,25 @@ class MQL5Client:
         self.running = False
         if self.stream_socket:
             self.stream_socket.close()
+
+    def decode_string(self, encoded_bytes: bytes) -> str:
+        """ Decodes the received bytes by reversing the shift encoding. """
+        return ''.join(chr(b - 42) for b in encoded_bytes)
+    
+    def uncompress_string(self, compressed_bytes: bytes) -> bytes:
+        """ Decompresses a run-length encoded byte sequence. """
+        uncompressed = bytearray()
+        i = 0
+        while i < len(compressed_bytes):
+            char = compressed_bytes[i]
+            if i + 1 < len(compressed_bytes) and isinstance(compressed_bytes[i+1], int):
+                count = compressed_bytes[i+1]
+                uncompressed.extend([char] * count)
+                i += 2
+            else:
+                uncompressed.append(char)
+                i += 1
+        return bytes(uncompressed)
 
 if __name__ == "__main__":
     client = MQL5Client()
@@ -59,3 +78,4 @@ if __name__ == "__main__":
     client.start_streaming()
     input("Press Enter to stop streaming...")
     client.stop_streaming()
+            
