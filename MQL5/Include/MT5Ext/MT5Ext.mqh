@@ -50,7 +50,7 @@ void CloseServers()
 
     for (int i = 0; i < ArraySize(streamingClients); i++)
     {
-        streamingClients[i].Close();
+        delete streamingClients[i];
     }
 }
 
