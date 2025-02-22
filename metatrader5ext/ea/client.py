@@ -1,6 +1,6 @@
 import asyncio
-from .connection import Connection
-from .errors import ERROR_DICT
+from connection import Connection
+from errors import ERROR_DICT
 
 class EAClient(Connection):
     def __init__(self):
@@ -47,14 +47,15 @@ class EAClient(Connection):
         return "Account Info: Balance=10000, Equity=10000, Free Margin=10000"
 
 
-# if __name__ == "__main__":
-#     client = Connection()
+if __name__ == "__main__":
+    client = EAClient()
     
-#     # Test REST requests
-#     print("Checking connection:", client.send_request("F000^1^"))
-#     print("Fetching account info:", client.send_request("F001^1^"))
-#     print("Fetching last tick info:", client.send_request("F020^2^"))
-    
+    # Test REST requests
+    print("Checking connection:", client.check_connection())
+    # print("Fetching static account info:", client.get_static_account_info())   
+    # print("Fetching dynamic account info:", client.get_dynamic_account_info())
+    # print("Fetching last tick info:", client.get_last_tick_info())
+
 #     # Start streaming updates
 #     client.start_streaming()
 #     input("Press Enter to stop streaming...")
