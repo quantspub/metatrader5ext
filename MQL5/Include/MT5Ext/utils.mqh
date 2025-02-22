@@ -15,7 +15,7 @@ string intMaxString(int val) {
 
 bool isAsciiPrintable(string val) {
     for (int i = 0; i < StringLen(val); i++) {
-        if (val[i] < 32 || val[i] >= 128) {
+        if (StringGetCharacter(val, i) < 32 || StringGetCharacter(val, i) >= 128) {
             return false;
         }
     }
@@ -33,7 +33,7 @@ string decimalMaxString(double val) {
 // 
 
 // Function to compress a string using a basic run-length encoding (RLE) algorithm
-uchar[] CompressString(string input)
+uchar CompressString(string input)
 {
     uchar compressed[];
     int len = StringLen(input);
@@ -60,7 +60,7 @@ uchar[] CompressString(string input)
 }
 
 // Function to encode and compress strings
-uchar[] EncodeStringWithRLECompression(string input)
+uchar EncodeStringWithRLECompression(string input)
 {
     uchar encoded[];
     uchar compressed[] = CompressString(input);
@@ -74,9 +74,8 @@ uchar[] EncodeStringWithRLECompression(string input)
     return encoded;
 }
 
-
 // Function to encode strings using a predefined alphabet-number mapping
-uchar[] EncodeString(string input)
+uchar EncodeString(string input)
 {
     uchar encoded[];
     for (int i = 0; i < StringLen(input); i++)
