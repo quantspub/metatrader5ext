@@ -40,13 +40,11 @@ void CloseServers()
 {
     if (restServer != NULL)
     {
-        restServer.Close();
         delete restServer;
     }
 
     if (streamingServer != NULL)
     {
-        streamingServer.Close();
         delete streamingServer;
     }
 
