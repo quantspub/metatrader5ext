@@ -160,7 +160,7 @@ uchar[] CompressString(string input)
 }
 
 // Function to encode and compress strings
-uchar[] EncodeString(string input)
+uchar[] EncodeStringWithRLECompression(string input)
 {
     uchar encoded[];
     uchar compressed[] = CompressString(input);
@@ -175,15 +175,15 @@ uchar[] EncodeString(string input)
 }
 
 
-// // Function to encode strings using a predefined alphabet-number mapping
-// uchar[] EncodeString(string input)
-// {
-//     uchar encoded[];
-//     for (int i = 0; i < StringLen(input); i++)
-//     {
-//         uchar ch = (uchar)StringGetCharacter(input, i);
-//         ArrayResize(encoded, ArraySize(encoded) + 1);
-//         encoded[ArraySize(encoded) - 1] = ch + 42;  // Simple shift encoding
-//     }
-//     return encoded;
-// }
+// Function to encode strings using a predefined alphabet-number mapping
+uchar[] EncodeString(string input)
+{
+    uchar encoded[];
+    for (int i = 0; i < StringLen(input); i++)
+    {
+        uchar ch = (uchar)StringGetCharacter(input, i);
+        ArrayResize(encoded, ArraySize(encoded) + 1);
+        encoded[ArraySize(encoded) - 1] = ch + 42;  // Simple shift encoding
+    }
+    return encoded;
+}

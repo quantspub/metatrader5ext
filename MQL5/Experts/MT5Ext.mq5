@@ -39,13 +39,12 @@ void OnTick()
     MqlTick lastTick;
     if (SymbolInfoTick(_Symbol, lastTick))
     {
-        uchar tickData[];
         string tickString = "F020^6^" + IntegerToString(lastTick.time) + "^" +
                             DoubleToString(lastTick.bid, 5) + "^" +
                             DoubleToString(lastTick.ask, 5) + "^" +
                             DoubleToString(lastTick.last, 5) + "^" +
                             IntegerToString(lastTick.volume) + "^";
-        tickData = EncodeString(tickString);
+        uchar tickData[] = EncodeString(tickString);
         BroadcastStreamingData(tickData);
     }
     
@@ -66,6 +65,7 @@ void OnTick()
                            DoubleToString(low, 5) + "^" +
                            DoubleToString(close, 5) + "^" +
                            IntegerToString(volume) + "^";
+                           
         uchar barData[] = EncodeString(barString);
         BroadcastStreamingData(barData);
     }
