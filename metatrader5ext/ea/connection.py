@@ -1,5 +1,6 @@
 import socket
 import threading
+import asyncio
 from typing import Optional
 
 class Connection:
@@ -8,22 +9,27 @@ class Connection:
     stream_port: int
     stream_socket: Optional[socket.socket]
     running: bool
+    encoding: str
 
-    def __init__(self, host: str = '127.0.0.1', rest_port: int = 15556, stream_port: int = 15557) -> None:
+    def __init__(self, host: str = '127.0.0.1', rest_port: int = 15556, stream_port: int = 15557, encoding: str = 'utf-8') -> None:
         self.host = host
         self.rest_port = rest_port
         self.stream_port = stream_port
         self.stream_socket = None
         self.running = False
+        self.encoding = encoding
 
-    def send_command(self, message: str) -> str:
-        """ Sends a request command to the REST server and returns the decoded response. """
+    async def send_message(self, message: str) -> str:
+        """ Sends a request command/message to the REST server and returns the decoded response. """
+        loop = asyncio.get_event_loop()
         try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.connect((self.host, self.rest_port))
-                s.sendall(message.encode('utf-8'))
-                response = s.recv(1024)
-                return response.decode('utf-8')
+            reader, writer = await asyncio.open_connection(self.host, self.rest_port, loop=loop)
+            writer.write(message.encode(self.encoding))
+            await writer.drain()
+            response = await reader.read(1024)
+            writer.close()
+            await writer.wait_closed()
+            return response.decode(self.encoding)
         except Exception as e:
             return f"Error: {e}"
 
@@ -43,9 +49,9 @@ class Connection:
             while self.running:
                 data = self.stream_socket.recv(1024)
                 if data:
-                    print("\nStream Update:", data.decode('utf-8'))
+                    print("\nStream Update:", data.decode(self.encoding))
                     # can use a callback here
-                    # callback(data.decode('utf-8'))
+                    # callback(data.decode(self.encoding))
         except Exception as e:
             print(f"Streaming error: {e}")
 

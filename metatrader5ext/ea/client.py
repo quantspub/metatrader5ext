@@ -1,10 +1,10 @@
 import asyncio
-from connection import Connection
-from errors import ERROR_DICT
+from .connection import Connection
+from .errors import ERROR_DICT
 
 class EAClient(Connection):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, host: str = '127.0.0.1', rest_port: int = 15556, stream_port: int = 15557, encoding: str = 'utf-8'):
+        super().__init__(host, rest_port, stream_port, encoding)
         self.debug = False
 
     async def check_connection(self):
@@ -12,15 +12,15 @@ class EAClient(Connection):
         self.command_return_error = ''
 
         try:
-            ok, data_string = await self.send_command(command)
-            if not ok:
+            response = await self.send_command(command)
+            if not response:
                 self.command_ok = False
                 return False
 
             if self.debug:
-                print(data_string)
+                print(response)
 
-            return self._process_connection_response(data_string)
+            return self._process_connection_response(response)
         except Exception as error:
             self.command_return_error = ERROR_DICT['00001']
             self.command_ok = False
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     client = EAClient()
     
     # Test REST requests
-    print("Checking connection:", client.check_connection())
+    asyncio.run(client.check_connection())
     # print("Fetching static account info:", client.get_static_account_info())   
     # print("Fetching dynamic account info:", client.get_dynamic_account_info())
     # print("Fetching last tick info:", client.get_last_tick_info())
