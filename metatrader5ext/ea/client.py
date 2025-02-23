@@ -1,6 +1,6 @@
 import asyncio
-from connection import Connection
-from errors import ERROR_DICT
+from .connection import Connection
+from .errors import ERROR_DICT
 
 class EAClient(Connection):
     def __init__(self, host: str = '127.0.0.1', rest_port: int = 15556, stream_port: int = 15557, encoding: str = 'utf-8', debug: bool = False):
@@ -197,19 +197,3 @@ class EAClient(Connection):
             raise Exception(f"Failed to get instrument info: {error}")
 
     # Add more methods as needed...
-
-if __name__ == "__main__":
-    client = EAClient()
-    
-    # Test REST requests
-    asyncio.run(client.check_connection())
-    # print("Fetching static account info:", asyncio.run(client.get_static_account_info()))   
-    # print("Fetching dynamic account info:", asyncio.run(client.get_dynamic_account_info()))
-    # print("Fetching last tick info:", asyncio.run(client.get_last_tick_info()))
-    # print("Fetching broker server time:", asyncio.run(client.get_broker_server_time()))
-    # print("Fetching instrument info:", asyncio.run(client.get_instrument_info()))
-
-#     # Start streaming updates
-#     client.start_streaming()
-#     input("Press Enter to stop streaming...")
-#     client.stop_streaming()

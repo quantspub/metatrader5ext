@@ -1,3 +1,7 @@
+from metatrader5ext.ea.client import EAClient
+from metatrader5ext.ea.connection import Connection
+from metatrader5ext.ea.errors import ERROR_DICT
+
 try:
     from metatrader5ext.ea.data_stream import MetaTrader5Streamer
 
@@ -11,6 +15,7 @@ except ImportError as e:
 
 
 __all__ = [
+    "EAClient",
     "MetaTrader5Streamer",
 ]
 
