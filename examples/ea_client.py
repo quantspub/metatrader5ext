@@ -24,9 +24,9 @@ async def main():
     print("Instrument info:", instrument_info)
 
     # Start streaming updates
-    client.start_streaming(callback=lambda data: print(f"Streamed data: {data}"))
+    client.start_stream(callback=lambda data: print(f"Streamed data: {data}"))
     input("Press Enter to stop streaming...")
-    client.stop_streaming()
+    client.stop_stream()
 
 if __name__ == "__main__":
     asyncio.run(main())
