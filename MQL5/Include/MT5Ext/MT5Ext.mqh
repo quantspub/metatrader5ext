@@ -5,7 +5,7 @@
 #property version "0.1"
 
 #include <MT5Ext\socket-library-mt4-mt5.mqh>
-#include <MT5Ext\helpers.mqh>
+#include <MT5Ext\rest-handlers.mqh.mqh>
 #include <MT5Ext\utils.mqh>
 
 ServerSocket *restServer;
@@ -155,7 +155,7 @@ void ProcessClient(ClientSocket &client, bool onlyStream, bool debug = false)
         }
         else
         {
-            response = MakeMessage("F999", "1", "UNKNOWN_REQUEST");
+            response = MakeMessage("F999", "1", ["UNKNOWN_REQUEST"]);
         }
 
         if (onlyStream)
@@ -197,9 +197,10 @@ void ParseRequest(const string &request, string &command, string &subCommand, st
     }
 }
 
-string MakeMessage(const string &command, const string &subCommand, const string &parameters)
+string MakeMessage(const string &command, const string &subCommand, const string &parameters[])
 {
-    return command + "^" + subCommand + "^" + parameters;
+    string params_str = StringJoin(parameters, "^");
+    return command + "^" + subCommand + "^" + params_str;
 }
 
 void BroadcastStreamData(const string &data)
