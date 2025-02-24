@@ -61,3 +61,6 @@ void OnTick()
         // return MakeMessage("F021", "1", noNewBarParameters);
     }
 }
+
+
+// https://www.mql5.com/en/docs/constants/structures/mqltick

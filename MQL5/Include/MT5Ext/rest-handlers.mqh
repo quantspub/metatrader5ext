@@ -111,7 +111,9 @@ string GetLastTickInfo(string symbol)
             DoubleToString(lastTick.bid, 5),
             DoubleToString(lastTick.ask, 5),
             DoubleToString(lastTick.last, 5),
-            IntegerToString(lastTick.volume)
+            IntegerToString(lastTick.volume),
+            IntegerToString(SymbolInfoInteger(symbol, SYMBOL_SPREAD)),
+            IntegerToString(lastTick.time_msc),
         };
         return MakeMessage("F020", "6", parameters);
     }

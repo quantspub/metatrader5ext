@@ -164,8 +164,8 @@ class EAClient(Connection):
                 return {
                     "instrument": instrument_name,
                     "date": int(parsed_response['data'][0]),
-                    "ask": float(parsed_response['data'][1]),
-                    "bid": float(parsed_response['data'][2]),
+                    "bid": float(parsed_response['data'][1]),
+                    "ask": float(parsed_response['data'][2]),
                     "last": float(parsed_response['data'][3]),
                     "volume": int(parsed_response['data'][4]),
                     "spread": float(parsed_response['data'][5]),
