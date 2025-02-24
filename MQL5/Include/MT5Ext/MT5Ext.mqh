@@ -149,7 +149,7 @@ void ProcessClient(ClientSocket &client, bool onlyStream, bool debug = false)
         }
         else if (command == "F020" && subCommand == "2")
         {
-            response = GetLastTickInfo();
+            response = GetLastTickInfo(parameters);
         }
         else if (command == "F005" && subCommand == "1")
         {
@@ -197,12 +197,6 @@ void ParseRequest(const string &request, string &command, string &subCommand, st
     {
         Print("Parsed request - Command: " + command + ", SubCommand: " + subCommand + ", Parameters: " + parameters);
     }
-}
-
-string MakeMessage(const string &command, const string &subCommand, const string &parameters[])
-{
-    string params_str = StringJoin(parameters, "^");
-    return command + "^" + subCommand + "^" + params_str;
 }
 
 void BroadcastStreamData(const string &data)

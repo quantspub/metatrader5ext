@@ -82,10 +82,14 @@ string CheckTerminalType()
     return "F012^1^" + TerminalInfoString(TERMINAL_NAME);
 }
 
-string GetLastTickInfo()
+string GetLastTickInfo(string symbol)
 {
+    // Make the symbol uppercase and standardized
+    symbol = StringUpper(symbol);
+    SymbolSelect(symbol, true);
+
     MqlTick lastTick;
-    if (SymbolInfoTick(_Symbol, lastTick))
+    if (SymbolInfoTick(symbol, lastTick))
     {
         string tickInfo = "F020^6^" + IntegerToString(lastTick.time) + "^" +
                           DoubleToString(lastTick.bid, 5) + "^" +

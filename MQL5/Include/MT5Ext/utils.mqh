@@ -38,6 +38,12 @@ string StringJoin(const string &arr[], const string &delimiter) {
     return result;
 }
 
+string MakeMessage(const string &command, const string &subCommand, const string &parameters[])
+{
+    string params_str = StringJoin(parameters, "^");
+    return command + "^" + subCommand + "^" + params_str;
+}
+
 // 
 // 
 // Helper functions for encoding and compressing strings
