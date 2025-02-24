@@ -1,5 +1,6 @@
 import asyncio
 from typing import Optional, Dict, Any
+from datetime import datetime
 from .connection import Connection
 from .errors import ERROR_DICT
 
@@ -163,7 +164,7 @@ class EAClient(Connection):
             if parsed_response:
                 return {
                     "instrument": instrument_name,
-                    "date": int(parsed_response['data'][0]),
+                    "date": datetime.fromtimestamp(int(parsed_response['data'][0])),
                     "bid": float(parsed_response['data'][1]),
                     "ask": float(parsed_response['data'][2]),
                     "last": float(parsed_response['data'][3]),
@@ -197,14 +198,15 @@ class EAClient(Connection):
 
             parsed_response = self._process_response(response, 'F005')
             if parsed_response:
-                y = parsed_response['data'][0].split('-')
+                timestamp = int(parsed_response['data'][0])
+                dt = datetime.fromtimestamp(timestamp)
                 my_date = {
-                    "year": int(y[0]),
-                    "month": int(y[1]),
-                    "day": int(y[2]),
-                    "hour": int(y[3]),
-                    "minute": int(y[4]),
-                    "second": int(y[5])
+                    "year": dt.year,
+                    "month": dt.month,
+                    "day": dt.day,
+                    "hour": dt.hour,
+                    "minute": dt.minute,
+                    "second": dt.second
                 }
                 return my_date
             return None
