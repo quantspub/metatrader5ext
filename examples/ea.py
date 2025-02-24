@@ -2,7 +2,7 @@ import asyncio
 from metatrader5ext.ea.client import EAClient
 
 async def main():
-    client = EAClient(debug=True)
+    client = EAClient()
 
     # Test REST requests
     connection_status = await client.check_connection()
@@ -24,7 +24,7 @@ async def main():
     print("Instrument info:", instrument_info) 
 
     # Start streaming updates
-    client.start_stream(callback=lambda data: print(f"Streamed data: {data}"))
+    client.start_stream(callback=lambda data: print(f"\nStreamed data: {data}"))
     input("Press Enter to stop streaming...")
     client.stop_stream()
 
