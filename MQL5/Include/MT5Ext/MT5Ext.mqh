@@ -6,6 +6,7 @@
 
 #include <MT5Ext\socket-library-mt4-mt5.mqh>
 #include <MT5Ext\rest-handlers.mqh>
+#include <MT5Ext\stream-handlers.mqh>
 #include <MT5Ext\utils.mqh>
 
 ServerSocket *restServer;
@@ -105,7 +106,8 @@ void ProcessClient(ClientSocket &client, bool onlyStream, bool debug = false)
             Print("Received request: " + request);
         }
 
-        string command, subCommand, parameters;
+        string command, subCommand;
+        string parameters[];
         ParseRequest(request, command, subCommand, parameters, debug);
 
         string response;
@@ -123,7 +125,7 @@ void ProcessClient(ClientSocket &client, bool onlyStream, bool debug = false)
         }
         else if (command == "F003" && subCommand == "2")
         {
-            response = GetInstrumentInfo(parameters);
+            response = GetInstrumentInfo(parameters[0]);
         }
         else if (command == "F007" && subCommand == "1")
         {
@@ -131,11 +133,11 @@ void ProcessClient(ClientSocket &client, bool onlyStream, bool debug = false)
         }
         else if (command == "F004" && subCommand == "2")
         {
-            response = CheckMarketWatch(parameters);
+            response = CheckMarketWatch(parameters[0]);
         }
         else if (command == "F008" && subCommand == "2")
         {
-            response = CheckTradingAllowed(parameters);
+            response = CheckTradingAllowed(parameters[0]);
         }
         else if (command == "F011" && subCommand == "1")
         {
@@ -170,8 +172,7 @@ void ProcessClient(ClientSocket &client, bool onlyStream, bool debug = false)
     }
 }
 
-
-void ParseRequest(const string &request, string &command, string &subCommand, string &parameters, bool debug = false)
+void ParseRequest(const string &request, string &command, string &subCommand, string &parameters[], bool debug = false)
 {
     // Split the request into command, sub_command, and parameters
     string parts[];
@@ -181,7 +182,7 @@ void ParseRequest(const string &request, string &command, string &subCommand, st
     {
         command = "F999";
         subCommand = "1";
-        parameters = "INVALID_REQUEST";
+        parameters[0] = "INVALID_REQUEST";
         if (debug)
         {
             Print("Invalid request format: " + request);
@@ -191,21 +192,21 @@ void ParseRequest(const string &request, string &command, string &subCommand, st
 
     command = parts[0];
     subCommand = parts[1];
-    parameters = ArraySize(parts) > 2 ? parts[2] : "";
+    ArrayResize(parameters, ArraySize(parts) - 2);
+    ArrayCopy(parameters, parts, 0, 2);
 
     if (debug)
     {
-        Print("Parsed request - Command: " + command + ", SubCommand: " + subCommand + ", Parameters: " + parameters);
+        Print("Parsed request - Command: " + command + ", SubCommand: " + subCommand + ", Parameters: " + StringJoin(parameters, ", "));
     }
 }
 
-void BroadcastStreamData(const string &data)
-{
-    for (int i = 0; i < ArraySize(streamingClients); i++)
-    {
-        if (streamingClients[i] != NULL && streamingClients[i].IsSocketConnected())
-        {
+void BroadcastStreamData(const string &data) {
+    for (int i = 0; i < ArraySize(streamingClients); i++) {
+        if (streamingClients[i] != NULL && streamingClients[i].IsSocketConnected()) {
             streamingClients[i].Send(data);
+        } else {
+            Print("Error: Client socket is not connected or is NULL.");
         }
     }
 }

@@ -35,5 +35,6 @@ void OnTimer() {
 }   
 
 void OnTick() {
-    HandleTick(_Symbol, lastBarTime);
+    GetLatestTick(_Symbol);
+    GetLatestBar(_Symbol, lastBarTime);
 }
