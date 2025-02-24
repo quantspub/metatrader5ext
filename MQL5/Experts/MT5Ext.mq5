@@ -11,37 +11,52 @@
 
 input ushort REST_SERVER_PORT = 15556;   // REST server for commands
 input ushort STREAM_SERVER_PORT = 15557; // Streaming server for real-time data and responses
-input int TIMER_INTERVAL = 1;    // Timer interval for the REST server
-input bool ONLY_STREAM_MODE = false; // If enabled, responses will be sent via stream server
-input bool DEBUG = false; // If enabled, debug messages will be printed
+input int TIMER_INTERVAL = 1;            // Timer interval for the REST server
+input bool ONLY_STREAM_MODE = false;     // If enabled, responses will be sent via stream server
+input bool DEBUG = false;                // If enabled, debug messages will be printed
 
 datetime lastBarTime = 0;
 
-void OnInit() {
+void OnInit()
+{
     StartServers(REST_SERVER_PORT, STREAM_SERVER_PORT, true);
 
     lastBarTime = iTime(_Symbol, PERIOD_CURRENT, 0);
     EventSetTimer(TIMER_INTERVAL);
 }
 
-void OnDeinit(const int reason) {
+void OnDeinit(const int reason)
+{
     EventKillTimer();
-    
+
     CloseServers();
 }
 
-void OnTimer() {
+void OnTimer()
+{
     AcceptClients(ONLY_STREAM_MODE, DEBUG);
-}   
+}
 
-void OnTick() {
+void OnTick()
+{
     string latestTick = GetLatestTick(_Symbol);
-    if (latestTick != "") {
+    if (latestTick != "")
+    {
         BroadcastStreamData(latestTick);
     }
-    
-    string latestBar = GetLatestBar(_Symbol, lastBarTime);
-    if (latestBar != "") {
-        BroadcastStreamData(latestBar);
+
+    // Detect new bar
+    datetime currentBarTime = iTime(symbol, PERIOD_CURRENT, 0);
+    if (currentBarTime > lastBarTime)
+    {
+        lastBarTime = currentBarTime;
+        string latestBar = GetLatestBar(_Symbol, currentBarTime);
+        if (latestBar != "")
+        {
+            BroadcastStreamData(latestBar);
+        }
+
+        // string noNewBarParameters[1] = {"NO_NEW_BAR"};
+        // return MakeMessage("F021", "1", noNewBarParameters);
     }
 }
