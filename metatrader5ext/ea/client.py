@@ -50,7 +50,7 @@ class EAClient(Connection):
 
         :return: True if the connection is successful, otherwise False.
         """
-        message = 'F000^1^'
+        message = self.make_message('F000', '1', [])
         self.return_error = ''
 
         try:
@@ -74,7 +74,7 @@ class EAClient(Connection):
 
         :return: A dictionary containing static account information if successful, otherwise None.
         """
-        message = 'F001^1^'
+        message = self.make_message('F001', '1', [])
         self.return_error = ''
 
         try:
@@ -112,7 +112,7 @@ class EAClient(Connection):
 
         :return: A dictionary containing dynamic account information if successful, otherwise None.
         """
-        message = 'F002^1^'
+        message = self.make_message('F002', '1', [])
         self.return_error = ''
 
         try:
@@ -147,7 +147,7 @@ class EAClient(Connection):
         :param instrument_name: The name of the instrument.
         :return: A dictionary containing the last tick information if successful, otherwise None.
         """
-        message = f'F020^2^{instrument_name}^'
+        message = self.make_message('F020', '2', [instrument_name])
         self.return_error = ''
 
         try:
@@ -164,8 +164,8 @@ class EAClient(Connection):
                 return {
                     "instrument": instrument_name,
                     "date": int(parsed_response['data'][0]),
-                    "ask": float(parsed_response['data'][1]),
-                    "bid": float(parsed_response['data'][2]),
+                    "bid": float(parsed_response['data'][1]),
+                    "ask": float(parsed_response['data'][2]),
                     "last": float(parsed_response['data'][3]),
                     "volume": int(parsed_response['data'][4]),
                     "spread": float(parsed_response['data'][5]),
@@ -183,7 +183,7 @@ class EAClient(Connection):
 
         :return: A dictionary containing the broker server time if successful, otherwise None.
         """
-        message = 'F005^1^'
+        message = self.make_message('F005', '1', [])
         self.return_error = ''
 
         try:
@@ -220,7 +220,7 @@ class EAClient(Connection):
         :param instrument_name: The name of the instrument.
         :return: A dictionary containing the instrument information if successful, otherwise None.
         """
-        message = f'F003^2^{instrument_name}^'
+        message = self.make_message('F003', '2', [instrument_name])
         self.return_error = ''
 
         try:

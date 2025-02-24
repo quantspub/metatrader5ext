@@ -5,7 +5,8 @@
 #property version "0.1"
 
 #include <MT5Ext\socket-library-mt4-mt5.mqh>
-#include <MT5Ext\helpers.mqh>
+#include <MT5Ext\rest-handlers.mqh>
+#include <MT5Ext\stream-handlers.mqh>
 #include <MT5Ext\utils.mqh>
 
 ServerSocket *restServer;
@@ -61,7 +62,7 @@ void CloseServers()
     }
 }
 
-void AcceptClients(bool onlyStream)
+void AcceptClients(bool onlyStream, bool debug)
 {
     if (restServer != NULL)
     {
@@ -70,7 +71,7 @@ void AcceptClients(bool onlyStream)
         {
             Print("New REST client connected: ", client);
             Print("Processing client request...");
-            ProcessClient(*client, onlyStream);
+            ProcessClient(*client, onlyStream, debug); 
             delete client;
         }
     }
@@ -87,73 +88,82 @@ void AcceptClients(bool onlyStream)
     }
 }
 
-void ProcessClient(ClientSocket &client, bool onlyStream)
+void ProcessClient(ClientSocket &client, bool onlyStream, bool debug = false)
 {
     uchar buffer[4098];
     int received = client.Receive(buffer);
 
     if (received > 0)
     {
-        Print("Received ", received, " bytes from client: ", &client);
-        // Print("Received data: ");
-        // ArrayPrint(buffer);
+        if (debug)
+        {
+            Print("Received ", received, " bytes from client: ", &client);
+        }
+
         string request = CharArrayToString(buffer, 0, received);
-        Print("Received request: " + request);
+        if (debug)
+        {
+            Print("Received request: " + request);
+        }
+
+        string command, subCommand;
+        string parameters[];
+        ParseRequest(request, command, subCommand, parameters, debug);
 
         string response;
-
-        if (request == "F000^1^")
+        if (command == "F000" && subCommand == "1")
         {
             response = GetCheckConnection();
         }
-        else if (request == "F001^1^")
+        else if (command == "F001" && subCommand == "1")
         {
             response = GetStaticAccountInfo();
         }
-        else if (request == "F002^1^")
+        else if (command == "F002" && subCommand == "1")
         {
             response = GetDynamicAccountInfo();
         }
-        else if (request == "F003^2^")
+        else if (command == "F003" && subCommand == "2")
         {
-            response = GetInstrumentInfo(_Symbol);
+            response = GetInstrumentInfo(parameters[0]);
         }
-        else if (request == "F007^1^")
+        else if (command == "F007" && subCommand == "1")
         {
             response = GetBrokerInstrumentNames();
         }
-        else if (request == "F004^2^")
+        else if (command == "F004" && subCommand == "2")
         {
-            response = CheckMarketWatch(_Symbol);
+            response = CheckMarketWatch(parameters[0]);
         }
-        else if (request == "F008^2^")
+        else if (command == "F008" && subCommand == "2")
         {
-            response = CheckTradingAllowed(_Symbol);
+            response = CheckTradingAllowed(parameters[0]);
         }
-        else if (request == "F011^1^")
+        else if (command == "F011" && subCommand == "1")
         {
             response = CheckTerminalServerConnection();
         }
-        else if (request == "F012^1^")
+        else if (command == "F012" && subCommand == "1")
         {
             response = CheckTerminalType();
         }
-        else if (request == "F020^2^")
+        else if (command == "F020" && subCommand == "2")
         {
-            response = GetLastTickInfo();
+            response = GetLastTickInfo(parameters[0]);
         }
-        else if (request == "F005^1^")
+        else if (command == "F005" && subCommand == "1")
         {
             response = GetBrokerServerTime();
         }
         else
         {
-            response = "F999^1^UNKNOWN_REQUEST";
+            string unknownRequest[] = {"UNKNOWN_REQUEST"};
+            response = MakeMessage("F999", "1", unknownRequest);
         }
 
         if (onlyStream)
         {
-            BroadcastStreamingData(response);
+            BroadcastStreamData(response);
         }
         else
         {
@@ -162,13 +172,41 @@ void ProcessClient(ClientSocket &client, bool onlyStream)
     }
 }
 
-void BroadcastStreamingData(const string &data)
+void ParseRequest(const string &request, string &command, string &subCommand, string &parameters[], bool debug = false)
 {
-    for (int i = 0; i < ArraySize(streamingClients); i++)
+    // Split the request into command, sub_command, and parameters
+    string parts[];
+    StringSplit(request, '^', parts);
+
+    if (ArraySize(parts) < 2)
     {
-        if (streamingClients[i] != NULL && streamingClients[i].IsSocketConnected())
+        command = "F999";
+        subCommand = "1";
+        parameters[0] = "INVALID_REQUEST";
+        if (debug)
         {
+            Print("Invalid request format: " + request);
+        }
+        return;
+    }
+
+    command = parts[0];
+    subCommand = parts[1];
+    ArrayResize(parameters, ArraySize(parts) - 2);
+    ArrayCopy(parameters, parts, 0, 2);
+
+    if (debug)
+    {
+        Print("Parsed request - Command: " + command + ", SubCommand: " + subCommand + ", Parameters: " + StringJoin(parameters, ", "));
+    }
+}
+
+void BroadcastStreamData(const string &data) {
+    for (int i = 0; i < ArraySize(streamingClients); i++) {
+        if (streamingClients[i] != NULL && streamingClients[i].IsSocketConnected()) {
             streamingClients[i].Send(data);
+        } else {
+            Print("Error: Client socket is not connected or is NULL.");
         }
     }
 }

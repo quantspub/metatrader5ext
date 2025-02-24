@@ -6,6 +6,5 @@ client.connect()
 print(client.is_connected())
 
 print(client.account_info())
-print(client.req_symbol_details(1002, "EURUSD"))
 
 client.disconnect()

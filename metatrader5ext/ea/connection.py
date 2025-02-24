@@ -51,6 +51,9 @@ class Connection:
             
             # Construct the message in the required format
             message = f"{command}^{sub_command}^{params_str}"
+
+            if self.debug:
+                print(f"Constructed message: {message}")
             
             return message
         
@@ -65,7 +68,7 @@ class Connection:
         Handles hidden '^' delimiters and ensures data is properly extracted.
 
         :param response_message: The response or message string to parse.
-        :return: A dictionary containing the command, sub-command, and data.
+        :return: A dictionary containing the command, sub_command, and data.
         """
         try:
             # Split the response or message by the '^' delimiter
@@ -95,11 +98,15 @@ class Connection:
                 raise ValueError("Invalid format. Hidden '^' delimiters detected in data.")
             
             # Return the parsed components as a dictionary
-            return {
+            response = {
                 'command': command,
                 'sub_command': sub_command,
                 'data': data
             }
+            if self.debug:
+                print(f"Parsed response: {response}")
+                
+            return response
         
         except Exception as e:
             # Handle any errors that occur during parsing
@@ -114,9 +121,8 @@ class Connection:
         :param message: The message to send.
         :return: The server's response as a decoded string.
         """
-        loop = asyncio.get_event_loop()
         try:
-            reader, writer = await asyncio.open_connection(self.host, self.rest_port, loop=loop)
+            reader, writer = await asyncio.open_connection(self.host, self.rest_port)
             writer.write(message.encode(self.encoding))
             await writer.drain()
             response = await reader.read(1024)

@@ -26,6 +26,30 @@ string decimalMaxString(double val) {
     return (val != DBL_MAX) ? DoubleToString(val, 8) : "";
 }
 
+string StringJoin(const string &arr[], const string &delimiter) {
+    string result = "";
+    int size = ArraySize(arr);
+    for (int i = 0; i < size; i++) {
+        result += arr[i];
+        if (i < size - 1) {
+            result += delimiter;
+        }
+    }
+    return result;
+}
+
+string MakeMessage(const string &command, const string &subCommand, const string &parameters[])
+{
+    string params_str = StringJoin(parameters, "^");
+    return command + "^" + subCommand + "^" + params_str;
+}
+
+// Helper function to convert bool to string
+string BoolToString(bool value)
+{
+    return value ? "true" : "false";
+}
+
 // 
 // 
 // Helper functions for encoding and compressing strings

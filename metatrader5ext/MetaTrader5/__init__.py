@@ -3,7 +3,6 @@ import platform
 # import importlib.util
 import sys
 import os
-from metatrader5ext.streaming import MetaTrader5Streamer
 
 current_dir = os.path.dirname(__file__)
 try:

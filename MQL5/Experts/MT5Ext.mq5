@@ -5,61 +5,62 @@
 #property version "0.1"
 
 #include <MT5Ext\MT5Ext.mqh>
-#include <MT5Ext\helpers.mqh>
+#include <MT5Ext\rest-handlers.mqh>
+#include <MT5Ext\stream-handlers.mqh>
 #include <MT5Ext\utils.mqh>
 
 input ushort REST_SERVER_PORT = 15556;   // REST server for commands
 input ushort STREAM_SERVER_PORT = 15557; // Streaming server for real-time data and responses
-input int TIMER_INTERVAL = 1;    // Timer interval for the REST server
-input bool ONLY_STREAM_MODE = false; // If enabled, responses will be sent via stream server
+input int TIMER_INTERVAL = 1;            // Timer interval for the REST server
+input bool ONLY_STREAM_MODE = false;     // If enabled, responses will be sent via stream server
+input bool DEBUG = false;                // If enabled, debug messages will be printed
 
 datetime lastBarTime = 0;
 
-void OnInit() {
+void OnInit()
+{
     StartServers(REST_SERVER_PORT, STREAM_SERVER_PORT, true);
 
     lastBarTime = iTime(_Symbol, PERIOD_CURRENT, 0);
     EventSetTimer(TIMER_INTERVAL);
 }
 
-void OnDeinit(const int reason) {
+void OnDeinit(const int reason)
+{
     EventKillTimer();
-    
+
     CloseServers();
 }
 
-void OnTimer() {
-    AcceptClients(ONLY_STREAM_MODE);
-}   
+void OnTimer()
+{
+    AcceptClients(ONLY_STREAM_MODE, DEBUG);
+}
 
-void OnTick() {
-    MqlTick lastTick;
-    if (SymbolInfoTick(_Symbol, lastTick)) {
-        string tickString = "F020^6^" + IntegerToString(lastTick.time) + "^" +
-                            DoubleToString(lastTick.bid, 5) + "^" +
-                            DoubleToString(lastTick.ask, 5) + "^" +
-                            DoubleToString(lastTick.last, 5) + "^" +
-                            IntegerToString(lastTick.volume) + "^";
-        BroadcastStreamingData(tickString);
+void OnTick()
+{
+    string symbol = _Symbol;
+    string latestTick = GetLatestTick(symbol);
+    if (latestTick != "")
+    {
+        BroadcastStreamData(latestTick);
     }
-    
+
     // Detect new bar
-    datetime currentBarTime = iTime(_Symbol, PERIOD_CURRENT, 0);
-    if (currentBarTime > lastBarTime) {
+    datetime currentBarTime = iTime(symbol, PERIOD_CURRENT, 0);
+    if (currentBarTime > lastBarTime)
+    {
         lastBarTime = currentBarTime;
-        double open = iOpen(_Symbol, PERIOD_CURRENT, 0);
-        double high = iHigh(_Symbol, PERIOD_CURRENT, 0);
-        double low = iLow(_Symbol, PERIOD_CURRENT, 0);
-        double close = iClose(_Symbol, PERIOD_CURRENT, 0);
-        long volume = iVolume(_Symbol, PERIOD_CURRENT, 0);
-        
-        string barString = "F021^6^" + IntegerToString(currentBarTime) + "^" +
-                           DoubleToString(open, 5) + "^" +
-                           DoubleToString(high, 5) + "^" +
-                           DoubleToString(low, 5) + "^" +
-                           DoubleToString(close, 5) + "^" +
-                           IntegerToString(volume) + "^";
-                           
-        BroadcastStreamingData(barString);
+        string latestBar = GetLatestBar(symbol, currentBarTime);
+        if (latestBar != "")
+        {
+            BroadcastStreamData(latestBar);
+        }
+
+        // string noNewBarParameters[1] = {"NO_NEW_BAR"};
+        // return MakeMessage("F021", "1", noNewBarParameters);
     }
 }
+
+
+// https://www.mql5.com/en/docs/constants/structures/mqltick
