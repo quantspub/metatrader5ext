@@ -17,7 +17,8 @@ string GetBrokerServerTime()
 
 string GetCheckConnection()
 {
-    return MakeMessage("F000", "1", ["OK"]);
+    string parameters[] = { "OK" };
+    return MakeMessage("F000", "1", parameters);
 }
 
 string GetStaticAccountInfo()
@@ -94,8 +95,12 @@ string CheckTerminalType()
 
 string GetLastTickInfo(string symbol)
 {
+    string errorParameters[] = { "ERROR" };
+
     // Make the symbol uppercase and standardized
-    symbol = StringUpper(symbol);
+    if (!StringToUpper(symbol)) {
+        return MakeMessage("F020", "1", errorParameters);
+    }
     SymbolSelect(symbol, true);
 
     MqlTick lastTick;
@@ -110,6 +115,5 @@ string GetLastTickInfo(string symbol)
         };
         return MakeMessage("F020", "6", parameters);
     }
-    return MakeMessage("F020", "1", ["ERROR"]);
+    return MakeMessage("F020", "1", errorParameters);
 }
-

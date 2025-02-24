@@ -6,6 +6,7 @@
 
 #include <MT5Ext\MT5Ext.mqh>
 #include <MT5Ext\rest-handlers.mqh>
+#include <MT5Ext\stream-handlers.mqh>
 #include <MT5Ext\utils.mqh>
 
 input ushort REST_SERVER_PORT = 15556;   // REST server for commands
@@ -34,33 +35,5 @@ void OnTimer() {
 }   
 
 void OnTick() {
-    MqlTick lastTick;
-    if (SymbolInfoTick(_Symbol, lastTick)) {
-        string tickString = "F020^6^" + IntegerToString(lastTick.time) + "^" +
-                            DoubleToString(lastTick.bid, 5) + "^" +
-                            DoubleToString(lastTick.ask, 5) + "^" +
-                            DoubleToString(lastTick.last, 5) + "^" +
-                            IntegerToString(lastTick.volume) + "^";
-        BroadcastStreamData(tickString);
-    }
-    
-    // Detect new bar
-    datetime currentBarTime = iTime(_Symbol, PERIOD_CURRENT, 0);
-    if (currentBarTime > lastBarTime) {
-        lastBarTime = currentBarTime;
-        double open = iOpen(_Symbol, PERIOD_CURRENT, 0);
-        double high = iHigh(_Symbol, PERIOD_CURRENT, 0);
-        double low = iLow(_Symbol, PERIOD_CURRENT, 0);
-        double close = iClose(_Symbol, PERIOD_CURRENT, 0);
-        long volume = iVolume(_Symbol, PERIOD_CURRENT, 0);
-        
-        string barString = "F021^6^" + IntegerToString(currentBarTime) + "^" +
-                           DoubleToString(open, 5) + "^" +
-                           DoubleToString(high, 5) + "^" +
-                           DoubleToString(low, 5) + "^" +
-                           DoubleToString(close, 5) + "^" +
-                           IntegerToString(volume) + "^";
-                           
-        BroadcastStreamData(barString);
-    }
+    HandleTick(_Symbol, lastBarTime);
 }
