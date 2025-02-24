@@ -4,7 +4,6 @@ import queue
 import socket
 import sys
 import threading
-import websockets
 import numpy as np
 from datetime import datetime, timezone
 from typing import Any, Callable, List, Optional
@@ -22,6 +21,9 @@ from .common import (
 )
 from .utils import ClientException, current_fn_name
 from .import_mt5_modules import MetaTrader5, MetaTrader5Streamer
+
+#TODO: Have 3 client modes:ipc,sockts and rpyc
+#  
 
 
 @dataclass
@@ -122,7 +124,6 @@ class MetaTrader5Ext:
         self.client_id = config.client_id
         self.market_data_type = config.market_data_type
         self.config = config
-        self.websocket = None
 
     def _initialize_mt5(self, config: MetaTrader5ExtConfig):
         if self._platform == PlatformType.WINDOWS:
@@ -146,14 +147,6 @@ class MetaTrader5Ext:
             debug=config.stream_debug,
         )
         self._stream_manager.start()
-
-    def _initialize_websocket_connection(self):
-        """
-        Initializes the WebSocket connection for streaming data.
-        """
-        uri = f"ws://{self.config.stream_host}:{self.config.stream_ws_port}"
-        self.websocket = websockets.connect(uri)
-        self.logger.debug(f"WebSocket connection established at {uri}")
 
     def is_connected(self):
         """
@@ -305,9 +298,6 @@ class MetaTrader5Ext:
 
             self.connection_time = datetime.now(timezone.utc).timestamp()
             self.send_msg((0, current_fn_name(), self._mt5.terminal_info()))
-
-            if self.config.stream_use_websockets:
-                self._initialize_websocket_connection()
 
         except TerminalError as e:
             TERMINAL_CONNECT_FAIL.errorMsg += f" => {e.__str__()}"
