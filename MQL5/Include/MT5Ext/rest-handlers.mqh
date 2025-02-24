@@ -54,9 +54,17 @@ string GetDynamicAccountInfo()
 string GetInstrumentInfo(string symbol)
 {
     string parameters[] = {
-        symbol,
-        DoubleToString(SymbolInfoDouble(symbol, SYMBOL_BID), 5),
-        DoubleToString(SymbolInfoDouble(symbol, SYMBOL_ASK), 5)
+        IntegerToString(SymbolInfoInteger(symbol, SYMBOL_DIGITS)),
+        DoubleToString(SymbolInfoDouble(symbol, SYMBOL_VOLUME_MAX), 2),
+        DoubleToString(SymbolInfoDouble(symbol, SYMBOL_VOLUME_MIN), 2),
+        DoubleToString(SymbolInfoDouble(symbol, SYMBOL_VOLUME_STEP), 2),
+        DoubleToString(SymbolInfoDouble(symbol, SYMBOL_POINT), 5),
+        DoubleToString(SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE), 5),
+        DoubleToString(SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_VALUE), 2),
+        DoubleToString(SymbolInfoDouble(symbol, SYMBOL_SWAP_LONG), 2),
+        DoubleToString(SymbolInfoDouble(symbol, SYMBOL_SWAP_SHORT), 2),
+        IntegerToString(SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL)),
+        DoubleToString(SymbolInfoDouble(symbol, SYMBOL_TRADE_CONTRACT_SIZE), 2)
     };
     return MakeMessage("F003", "3", parameters);
 }

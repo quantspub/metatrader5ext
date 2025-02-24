@@ -21,7 +21,7 @@ async def main():
     print("Broker server time:", broker_server_time)
 
     instrument_info = await client.get_instrument_info()
-    print("Instrument info:", instrument_info)
+    print("Instrument info:", instrument_info) 
 
     # Start streaming updates
     client.start_stream(callback=lambda data: print(f"Streamed data: {data}"))
