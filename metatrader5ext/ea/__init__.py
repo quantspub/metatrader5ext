@@ -16,6 +16,8 @@ except ImportError as e:
 
 __all__ = [
     "EAClient",
+    "Connection",
+    "ERROR_DICT",
     "MetaTrader5Streamer",
 ]
 
