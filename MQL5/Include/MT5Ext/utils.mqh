@@ -26,6 +26,18 @@ string decimalMaxString(double val) {
     return (val != DBL_MAX) ? DoubleToString(val, 8) : "";
 }
 
+string StringJoin(const string &arr[], const string &delimiter) {
+    string result = "";
+    int size = ArraySize(arr);
+    for (int i = 0; i < size; i++) {
+        result += arr[i];
+        if (i < size - 1) {
+            result += delimiter;
+        }
+    }
+    return result;
+}
+
 // 
 // 
 // Helper functions for encoding and compressing strings

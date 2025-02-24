@@ -5,7 +5,7 @@
 #property version "0.1"
 
 #include <MT5Ext\MT5Ext.mqh>
-#include <MT5Ext\helpers.mqh>
+#include <MT5Ext\rest-handlers.mqh>
 #include <MT5Ext\utils.mqh>
 
 input ushort REST_SERVER_PORT = 15556;   // REST server for commands
