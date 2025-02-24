@@ -1,8 +1,6 @@
 # MetaTrader 5 Extension 🚀
 
-A powerful extension for MetaTrader 5 that enhances its functionality, enabling advanced trading and market analysis tools. 🛠️
-
-This extension enhances the MetaTrader 5 Python package, introducing advanced tools for trading and market analysis. It simplifies complex tasks such as order management, data retrieval, and strategy automation, while enabling features like custom indicators, advanced charting, and seamless API integrations. Compatible with MetaTrader 5, it supports efficient trading operations and data-driven decision-making for traders and developers alike.
+An extension that enhances the MetaTrader 5 Python package, introducing advanced tools for trading and market analysis. It simplifies complex tasks such as order management, data retrieval, and strategy automation, while enabling features like custom indicators, advanced charting, and seamless API integrations. Compatible with MetaTrader 5, it supports efficient trading operations and data-driven decision-making for traders and developers alike. 🛠️
 
 ## Installation ⚙️
 To install the MetaTrader 5 Extension, follow these steps:
