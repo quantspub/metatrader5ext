@@ -130,7 +130,7 @@ class Connection:
                 print(f"Error: {e}")
             return f"Error: {e}"
 
-    def start_streaming(self, callback: Optional[Callable[[str], None]] = None) -> None:
+    def start_stream(self, callback: Optional[Callable[[str], None]] = None) -> None:
         """
         Connects to the streaming server and continuously listens for updates.
 
@@ -159,7 +159,7 @@ class Connection:
         except Exception as e:
             print(f"Streaming error: {e}")
 
-    def stop_streaming(self) -> None:
+    def stop_stream(self) -> None:
         """ Stops the streaming connection. """
         self.running = False
         if self.stream_socket:
