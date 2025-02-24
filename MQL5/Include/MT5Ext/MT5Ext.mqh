@@ -155,7 +155,7 @@ void ProcessClient(ClientSocket &client, bool onlyStream, bool debug = false)
         }
         else
         {
-            response = "F999^1^UNKNOWN_REQUEST";
+            response = MakeMessage("F999", "1", "UNKNOWN_REQUEST");
         }
 
         if (onlyStream)
@@ -195,6 +195,11 @@ void ParseRequest(const string &request, string &command, string &subCommand, st
     {
         Print("Parsed request - Command: " + command + ", SubCommand: " + subCommand + ", Parameters: " + parameters);
     }
+}
+
+string MakeMessage(const string &command, const string &subCommand, const string &parameters)
+{
+    return command + "^" + subCommand + "^" + parameters;
 }
 
 void BroadcastStreamData(const string &data)
