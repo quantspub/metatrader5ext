@@ -51,6 +51,9 @@ class Connection:
             
             # Construct the message in the required format
             message = f"{command}^{sub_command}^{params_str}"
+
+            if self.debug:
+                print(f"Constructed message: {message}")
             
             return message
         
@@ -95,11 +98,15 @@ class Connection:
                 raise ValueError("Invalid format. Hidden '^' delimiters detected in data.")
             
             # Return the parsed components as a dictionary
-            return {
+            response = {
                 'command': command,
                 'sub_command': sub_command,
                 'data': data
             }
+            if self.debug:
+                print(f"Parsed response: {response}")
+                
+            return response
         
         except Exception as e:
             # Handle any errors that occur during parsing
