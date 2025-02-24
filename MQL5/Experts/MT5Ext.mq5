@@ -13,7 +13,7 @@ input ushort REST_SERVER_PORT = 15556;   // REST server for commands
 input ushort STREAM_SERVER_PORT = 15557; // Streaming server for real-time data and responses
 input int TIMER_INTERVAL = 1;    // Timer interval for the REST server
 input bool ONLY_STREAM_MODE = false; // If enabled, responses will be sent via stream server
-input bool DEBUG = false; // If enabled, responses will be sent via stream server
+input bool DEBUG = false; // If enabled, debug messages will be printed
 
 datetime lastBarTime = 0;
 
@@ -35,6 +35,13 @@ void OnTimer() {
 }   
 
 void OnTick() {
-    GetLatestTick(_Symbol);
-    GetLatestBar(_Symbol, lastBarTime);
+    string latestTick = GetLatestTick(_Symbol);
+    if (latestTick != "") {
+        BroadcastStreamData(latestTick);
+    }
+    
+    string latestBar = GetLatestBar(_Symbol, lastBarTime);
+    if (latestBar != "") {
+        BroadcastStreamData(latestBar);
+    }
 }
