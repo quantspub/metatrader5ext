@@ -39,7 +39,8 @@ void OnTimer()
 
 void OnTick()
 {
-    string latestTick = GetLatestTick(_Symbol);
+    string symbol = _Symbol;
+    string latestTick = GetLatestTick(symbol);
     if (latestTick != "")
     {
         BroadcastStreamData(latestTick);
@@ -50,7 +51,7 @@ void OnTick()
     if (currentBarTime > lastBarTime)
     {
         lastBarTime = currentBarTime;
-        string latestBar = GetLatestBar(_Symbol, currentBarTime);
+        string latestBar = GetLatestBar(symbol, currentBarTime);
         if (latestBar != "")
         {
             BroadcastStreamData(latestBar);
