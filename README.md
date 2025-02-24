@@ -35,7 +35,7 @@ python ./examples/mt5_client.py
 This extension supports three different client modes:
 
 1. **IPC Mode** (Using the MetaTrader Python library) 📦
-   - Directly communicates with MetaTrader 5 via the official Python API.
+   - Directly communicates with MetaTrader 5 via the official Python API which uses `IPC`(Inter-Process Communication).
    - Best for local integration without additional network overhead but does not support real-time updates.
 
 2. **Socket Mode** (Using MetaTrader EA) 🌐
