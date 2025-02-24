@@ -23,7 +23,7 @@ def handle_stream_data(data: str) -> None:
     print("Streamed data:", data)
 
 async def main():
-    client = EAClient(debug=True)
+    client = EAClient()
 
     # Start streaming updates
     client.start_stream(callback=handle_stream_data)
