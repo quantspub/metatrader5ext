@@ -44,6 +44,41 @@ string MakeMessage(const string &command, const string &subCommand, const string
     return command + "^" + subCommand + "^" + params_str;
 }
 
+
+void ParseRequest(const string &request, string &command, string &subCommand, string &parameters, bool debug = false)
+{
+    // Split the request into command, sub_command, and parameters
+    string parts[];
+    StringSplit(request, '^', parts);
+
+    if (ArraySize(parts) < 2)
+    {
+        command = "F999";
+        subCommand = "1";
+        parameters = "INVALID_REQUEST";
+        if (debug)
+        {
+            Print("Invalid request format: " + request);
+        }
+        return;
+    }
+
+    command = parts[0];
+    subCommand = parts[1];
+    parameters = ArraySize(parts) > 2 ? parts[2] : "";
+
+    if (debug)
+    {
+        Print("Parsed request - Command: " + command + ", SubCommand: " + subCommand + ", Parameters: " + parameters);
+    }
+}
+
+// Helper function to convert bool to string
+string BoolToString(bool value)
+{
+    return value ? "true" : "false";
+}
+
 // 
 // 
 // Helper functions for encoding and compressing strings
