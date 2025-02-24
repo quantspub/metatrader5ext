@@ -68,7 +68,7 @@ class Connection:
         Handles hidden '^' delimiters and ensures data is properly extracted.
 
         :param response_message: The response or message string to parse.
-        :return: A dictionary containing the command, sub-command, and data.
+        :return: A dictionary containing the command, sub_command, and data.
         """
         try:
             # Split the response or message by the '^' delimiter
@@ -121,9 +121,8 @@ class Connection:
         :param message: The message to send.
         :return: The server's response as a decoded string.
         """
-        loop = asyncio.get_event_loop()
         try:
-            reader, writer = await asyncio.open_connection(self.host, self.rest_port, loop=loop)
+            reader, writer = await asyncio.open_connection(self.host, self.rest_port)
             writer.write(message.encode(self.encoding))
             await writer.drain()
             response = await reader.read(1024)
