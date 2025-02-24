@@ -55,9 +55,14 @@ metatrader5ext/
 ├── examples/          # Example scripts for usage
 ├── metatrader5ext/    # Source code for the extension
 ├── tests/             # Test cases
-├── .env.example       # Environment variables template
+├── MQL5/              # MQL5 scripts and EA module
+├── docs/              # Documentation files
 ├── pyproject.toml     # Poetry configuration
-└── README.md          # Project documentation
+├── poetry.lock        # Dependency lock file
+├── build.py           # Build script
+├── .gitignore         # Git ignore file
+├── LICENSE            # License file
+├── README.md          # Project documentation
 ```
 
 ## Contributing 🤝
