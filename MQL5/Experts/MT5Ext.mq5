@@ -12,6 +12,7 @@ input ushort REST_SERVER_PORT = 15556;   // REST server for commands
 input ushort STREAM_SERVER_PORT = 15557; // Streaming server for real-time data and responses
 input int TIMER_INTERVAL = 1;    // Timer interval for the REST server
 input bool ONLY_STREAM_MODE = false; // If enabled, responses will be sent via stream server
+input bool DEBUG = false; // If enabled, responses will be sent via stream server
 
 datetime lastBarTime = 0;
 
@@ -29,7 +30,7 @@ void OnDeinit(const int reason) {
 }
 
 void OnTimer() {
-    AcceptClients(ONLY_STREAM_MODE);
+    AcceptClients(ONLY_STREAM_MODE, DEBUG);
 }   
 
 void OnTick() {
@@ -40,7 +41,7 @@ void OnTick() {
                             DoubleToString(lastTick.ask, 5) + "^" +
                             DoubleToString(lastTick.last, 5) + "^" +
                             IntegerToString(lastTick.volume) + "^";
-        BroadcastStreamingData(tickString);
+        BroadcastStreamData(tickString);
     }
     
     // Detect new bar
@@ -60,6 +61,6 @@ void OnTick() {
                            DoubleToString(close, 5) + "^" +
                            IntegerToString(volume) + "^";
                            
-        BroadcastStreamingData(barString);
+        BroadcastStreamData(barString);
     }
 }
