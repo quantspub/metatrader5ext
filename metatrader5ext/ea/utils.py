@@ -227,3 +227,24 @@ def MQL5Period(text):
         if i == text.upper():
             return "PERIOD_" + i
     return "PERIOD_CURRENT"
+
+
+
+# def decode_string(self, encoded_bytes: bytes) -> str:
+#     """ Decodes the received bytes by reversing the shift encoding. """
+#     return ''.join(chr(b - 42) for b in encoded_bytes)
+    
+    # def uncompress_string(self, compressed_bytes: bytes) -> bytes:
+    #     """ Decompresses a run-length encoded byte sequence. """
+    #     uncompressed = bytearray()
+    #     i = 0
+    #     while i < len(compressed_bytes):
+    #         char = compressed_bytes[i]
+    #         if i + 1 < len(compressed_bytes) and isinstance(compressed_bytes[i+1], int):
+    #             count = compressed_bytes[i+1]
+    #             uncompressed.extend([char] * count)
+    #             i += 2
+    #         else:
+    #             uncompressed.append(char)
+    #             i += 1
+    #     return bytes(uncompressed)
