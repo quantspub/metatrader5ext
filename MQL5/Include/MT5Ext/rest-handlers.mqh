@@ -316,17 +316,17 @@ string GetAllDeletedOrders()
         {
             ulong ticket = OrderGetTicket(i);
             parameters[i] = IntegerToString(ticket) + "$" +
-                            OrderGetString(ORDER_SYMBOL, ticket) + "$" +
-                            IntegerToString(OrderGetInteger(ticket, ORDER_TYPE)) + "$" +
-                            IntegerToString(OrderGetInteger(ticket, ORDER_MAGIC)) + "$" +
-                            DoubleToString(OrderGetDouble(ticket, ORDER_VOLUME), 2) + "$" +
-                            DoubleToString(OrderGetDouble(ticket, ORDER_PRICE_OPEN), 5) + "$" +
-                            IntegerToString(OrderGetInteger(ticket, ORDER_TIME_SETUP)) + "$" +
-                            DoubleToString(OrderGetDouble(ticket, ORDER_SL), 5) + "$" +
-                            DoubleToString(OrderGetDouble(ticket, ORDER_TP), 5) + "$" +
-                            DoubleToString(OrderGetDouble(ticket, ORDER_PRICE_CURRENT), 5) + "$" +
-                            IntegerToString(OrderGetInteger(ticket, ORDER_TIME_DONE)) + "$" +
-                            OrderGetString(ticket, ORDER_COMMENT);
+                            OrderGetString(ORDER_SYMBOL) + "$" +
+                            IntegerToString(OrderGetInteger(ORDER_TYPE)) + "$" +
+                            IntegerToString(OrderGetInteger(ORDER_MAGIC)) + "$" +
+                            DoubleToString(OrderGetDouble(ORDER_VOLUME), 2) + "$" +
+                            DoubleToString(OrderGetDouble(ORDER_PRICE_OPEN), 5) + "$" +
+                            IntegerToString(OrderGetInteger(ORDER_TIME_SETUP)) + "$" +
+                            DoubleToString(OrderGetDouble(ORDER_SL), 5) + "$" +
+                            DoubleToString(OrderGetDouble(ORDER_TP), 5) + "$" +
+                            DoubleToString(OrderGetDouble(ORDER_PRICE_CURRENT), 5) + "$" +
+                            IntegerToString(OrderGetInteger(ORDER_TIME_DONE)) + "$" +
+                            OrderGetString(ORDER_COMMENT);
         }
         return MakeMessage("F065", IntegerToString(ArraySize(parameters)), parameters);
     }
@@ -397,7 +397,7 @@ string GetAllDeletedPendingOrdersWithinWindow(datetime date_from, datetime date_
 {
     string errorParameters[] = {"ERROR"};
 
-    int total = OrdersHistoryTotal();
+    int total = HistoryOrdersTotal();
     if (total > 0)
     {
         string parameters[];
@@ -408,17 +408,17 @@ string GetAllDeletedPendingOrdersWithinWindow(datetime date_from, datetime date_
             if (order_time >= date_from && order_time <= date_to)
             {
                 parameters[i] = IntegerToString(ticket) + "$" +
-                                OrderGetString(ticket, ORDER_SYMBOL) + "$" +
-                                IntegerToString(OrderGetInteger(ticket, ORDER_TYPE)) + "$" +
-                                IntegerToString(OrderGetInteger(ticket, ORDER_MAGIC)) + "$" +
-                                DoubleToString(OrderGetDouble(ticket, ORDER_VOLUME), 2) + "$" +
-                                DoubleToString(OrderGetDouble(ticket, ORDER_PRICE_OPEN), 5) + "$" +
+                                OrderGetString(ORDER_SYMBOL) + "$" +
+                                IntegerToString(OrderGetInteger(ORDER_TYPE)) + "$" +
+                                IntegerToString(OrderGetInteger(ORDER_MAGIC)) + "$" +
+                                DoubleToString(OrderGetDouble(ORDER_VOLUME), 2) + "$" +
+                                DoubleToString(OrderGetDouble(ORDER_PRICE_OPEN), 5) + "$" +
                                 IntegerToString(order_time) + "$" +
-                                DoubleToString(OrderGetDouble(ticket, ORDER_SL), 5) + "$" +
-                                DoubleToString(OrderGetDouble(ticket, ORDER_TP), 5) + "$" +
-                                DoubleToString(OrderGetDouble(ticket, ORDER_PRICE_CURRENT), 5) + "$" +
-                                IntegerToString(OrderGetInteger(ticket, ORDER_TIME_DONE)) + "$" +
-                                OrderGetString(ticket, ORDER_COMMENT);
+                                DoubleToString(OrderGetDouble(ORDER_SL), 5) + "$" +
+                                DoubleToString(OrderGetDouble(ORDER_TP), 5) + "$" +
+                                DoubleToString(OrderGetDouble(ORDER_PRICE_CURRENT), 5) + "$" +
+                                IntegerToString(OrderGetInteger(ORDER_TIME_DONE)) + "$" +
+                                OrderGetString(ORDER_COMMENT);
             }
         }
         return MakeMessage("F064", IntegerToString(ArraySize(parameters)), parameters);
