@@ -2,6 +2,8 @@
 
 An extension that enhances the MetaTrader 5 Python package, introducing advanced tools for trading and market analysis. It simplifies complex tasks such as order management, data retrieval, and strategy automation, while enabling features like custom indicators, advanced charting, and seamless API integrations. Compatible with MetaTrader 5, it supports efficient trading operations and data-driven decision-making for traders and developers alike. 🛠️
 
+This extension empowers traders and developers to optimize workflows, automate strategies, and build custom trading solutions. Whether you're a beginner or an expert, it expands the capabilities of the MetaTrader 5 ecosystem, making it a must-have tool for advanced trading automation and analysis. 🚀📈
+
 ## Installation ⚙️
 To install the MetaTrader 5 Extension, follow these steps:
 
@@ -101,4 +103,9 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 ## License 📄
 This project is licensed under the MIT License. See the `LICENSE` file for details.
 
-This extension empowers traders and developers to optimize workflows, automate strategies, and build custom trading solutions. Whether you're a beginner or an expert, it expands the capabilities of the MetaTrader 5 ecosystem, making it a must-have tool for advanced trading automation and analysis. 🚀📈
+## Credits 🙏
+
+- [PyTrader Python MT4/MT5 Trading API Connector](https://github.com/TheSnowGuru/PyTrader-python-mt4-mt5-trading-api-connector-drag-n-drop) 🌟
+- [MQL5 Articles](https://www.mql5.com/en/articles/234) 📚
+- [MQL5 Forum](https://www.mql5.com/en/forum/244840) 💬
+
