@@ -7,7 +7,7 @@
 #include <MT5Ext\utils.mqh>
 
 // 
-// Various helper functions
+// Handlers functions
 // 
 string GetBrokerServerTime()
 {
