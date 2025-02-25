@@ -164,7 +164,7 @@ class EAClient(Connection):
             if parsed_response:
                 return {
                     "instrument": instrument_name,
-                    "date": datetime.fromtimestamp(int(parsed_response['data'][0])),
+                    "date": datetime.fromtimestamp(int(parsed_response['data'][0])).strftime('%Y-%m-%d %H:%M:%S'),
                     "bid": float(parsed_response['data'][1]),
                     "ask": float(parsed_response['data'][2]),
                     "last": float(parsed_response['data'][3]),
@@ -1117,4 +1117,3 @@ class EAClient(Connection):
             self.return_error = ERROR_DICT['00001']
             self.ok = False
             raise Exception(f"Failed to switch auto trading on/off: {error}")
-        
