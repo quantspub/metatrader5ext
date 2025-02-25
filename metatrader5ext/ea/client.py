@@ -235,23 +235,21 @@ class EAClient(Connection):
                 print(response)
 
             parsed_response = self._process_response(response, 'F003')
-            if parsed_response:
+            if (parsed_response):
                 return {
-    "instrument": instrument_name,
-    "digits": int(parsed_response['data'][0]),  # SYMBOL_DIGITS (Integer)
-    "max_lotsize": float(parsed_response['data'][1]),  # SYMBOL_VOLUME_MAX (Double)
-    "min_lotsize": float(parsed_response['data'][2]),  # SYMBOL_VOLUME_MIN (Double)
-    "lot_step": float(parsed_response['data'][3]),  # SYMBOL_VOLUME_STEP (Double)
-    "point": float(parsed_response['data'][4]),  # SYMBOL_POINT (Double)
-    "tick_size": float(parsed_response['data'][5]),  # SYMBOL_TRADE_TICK_SIZE (Double)
-    "tick_value": float(parsed_response['data'][6]),  # SYMBOL_TRADE_TICK_VALUE (Double)
-    "swap_long": float(parsed_response['data'][7]),  # SYMBOL_SWAP_LONG (Double)
-    "swap_short": float(parsed_response['data'][8]),  # SYMBOL_SWAP_SHORT (Double)
-    "stop_level": int(parsed_response['data'][9]),  # SYMBOL_TRADE_STOPS_LEVEL (Integer)
-    "contract_size": float(parsed_response['data'][10])  # SYMBOL_TRADE_CONTRACT_SIZE (Double)
-}
-
-            
+                    "instrument": instrument_name,
+                    "digits": int(parsed_response['data'][0]),  # SYMBOL_DIGITS (Integer)
+                    "max_lotsize": float(parsed_response['data'][1]),  # SYMBOL_VOLUME_MAX (Double)
+                    "min_lotsize": float(parsed_response['data'][2]),  # SYMBOL_VOLUME_MIN (Double)
+                    "lot_step": float(parsed_response['data'][3]),  # SYMBOL_VOLUME_STEP (Double)
+                    "point": float(parsed_response['data'][4]),  # SYMBOL_POINT (Double)
+                    "tick_size": float(parsed_response['data'][5]),  # SYMBOL_TRADE_TICK_SIZE (Double)
+                    "tick_value": float(parsed_response['data'][6]),  # SYMBOL_TRADE_TICK_VALUE (Double)
+                    "swap_long": float(parsed_response['data'][7]),  # SYMBOL_SWAP_LONG (Double)
+                    "swap_short": float(parsed_response['data'][8]),  # SYMBOL_SWAP_SHORT (Double)
+                    "stop_level": int(parsed_response['data'][9]),  # SYMBOL_TRADE_STOPS_LEVEL (Integer)
+                    "contract_size": float(parsed_response['data'][10])  # SYMBOL_TRADE_CONTRACT_SIZE (Double)
+                }
             return None
         except Exception as error:
             self.return_error = ERROR_DICT['00001']
