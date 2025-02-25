@@ -58,7 +58,7 @@ This extension is divided into two parts:
 ### **EA Module 🤖**
 - Enables communication with MetaTrader 5 via sockets.
 - Includes a pre-compiled MQL5 server named `MT5Ext.mq5` located in the **Experts** folder within the MQL5 directory. 📂
-- Simply attach the server to an MT5 chart to facilitate seamless communication between any client written in any language of choice (e.g., Python, JavaScript, or C++) and MT5. 🌐
+- Simply attach(Drag & Drop) the server to an MT5 chart to facilitate seamless communication between any client written in any language of choice (e.g., Python, JavaScript, or C++) and MT5. 🌐
 - Perfect for building custom trading systems and integrating with external applications. 🔗
 
 ## Project Structure 🗂️
