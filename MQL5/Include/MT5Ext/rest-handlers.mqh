@@ -4,20 +4,23 @@
 #property copyright "QuantsPub"
 #property version "0.1"
 
+#include <Trade\Trade.mqh>
+#include <Trade\PositionInfo.mqh>
+#include <Trade\OrderInfo.mqh>
 #include <MT5Ext\utils.mqh>
 
-// 
+//
 // Handlers functions
-// 
+//
 string GetBrokerServerTime()
 {
-    string parameters[] = { IntegerToString(TimeCurrent()) };
+    string parameters[] = {IntegerToString(TimeCurrent())};
     return MakeMessage("F005", "1", parameters);
 }
 
 string GetCheckConnection()
 {
-    string parameters[] = { "OK" };
+    string parameters[] = {"OK"};
     return MakeMessage("F000", "1", parameters);
 }
 
@@ -33,8 +36,7 @@ string GetStaticAccountInfo()
         IntegerToString(AccountInfoInteger(ACCOUNT_LIMIT_ORDERS)),
         DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN_SO_CALL)),
         DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN_SO_SO)),
-        AccountInfoString(ACCOUNT_COMPANY)
-    };
+        AccountInfoString(ACCOUNT_COMPANY)};
     return MakeMessage("F001", "10", parameters);
 }
 
@@ -46,8 +48,7 @@ string GetDynamicAccountInfo()
         DoubleToString(AccountInfoDouble(ACCOUNT_PROFIT), 2),
         DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN), 2),
         DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN_LEVEL), 2),
-        DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN_FREE), 2)
-    };
+        DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN_FREE), 2)};
     return MakeMessage("F002", "6", parameters);
 }
 
@@ -64,49 +65,49 @@ string GetInstrumentInfo(string symbol)
         DoubleToString(SymbolInfoDouble(symbol, SYMBOL_SWAP_LONG), 2),
         DoubleToString(SymbolInfoDouble(symbol, SYMBOL_SWAP_SHORT), 2),
         IntegerToString(SymbolInfoInteger(symbol, SYMBOL_TRADE_STOPS_LEVEL)),
-        DoubleToString(SymbolInfoDouble(symbol, SYMBOL_TRADE_CONTRACT_SIZE), 2)
-    };
+        DoubleToString(SymbolInfoDouble(symbol, SYMBOL_TRADE_CONTRACT_SIZE), 2)};
     return MakeMessage("F003", "3", parameters);
 }
 
 string GetBrokerInstrumentNames()
 {
-    string parameters[] = { TerminalInfoString(TERMINAL_NAME) };
+    string parameters[] = {TerminalInfoString(TERMINAL_NAME)};
     return MakeMessage("F007", "1", parameters);
 }
 
 string CheckMarketWatch(string symbol)
 {
     bool isWatched = SymbolSelect(symbol, true);
-    string parameters[] = { isWatched ? "YES" : "NO" };
+    string parameters[] = {isWatched ? "YES" : "NO"};
     return MakeMessage("F004", "1", parameters);
 }
 
 string CheckTradingAllowed(string symbol)
 {
     bool tradingAllowed = SymbolInfoInteger(symbol, SYMBOL_TRADE_MODE) != SYMBOL_TRADE_MODE_DISABLED;
-    string parameters[] = { tradingAllowed ? "YES" : "NO" };
+    string parameters[] = {tradingAllowed ? "YES" : "NO"};
     return MakeMessage("F008", "1", parameters);
 }
 
 string CheckTerminalServerConnection()
 {
-    string parameters[] = { TerminalInfoInteger(TERMINAL_CONNECTED) ? "CONNECTED" : "DISCONNECTED" };
+    string parameters[] = {TerminalInfoInteger(TERMINAL_CONNECTED) ? "CONNECTED" : "DISCONNECTED"};
     return MakeMessage("F011", "1", parameters);
 }
 
 string CheckTerminalType()
 {
-    string parameters[] = { TerminalInfoString(TERMINAL_NAME) };
+    string parameters[] = {TerminalInfoString(TERMINAL_NAME)};
     return MakeMessage("F012", "1", parameters);
 }
 
 string GetLastTickInfo(string symbol)
 {
-    string errorParameters[] = { "ERROR" };
+    string errorParameters[] = {"ERROR"};
 
     // Make the symbol uppercase and standardized
-    if (!StringToUpper(symbol)) {
+    if (!StringToUpper(symbol))
+    {
         return MakeMessage("F020", "1", errorParameters);
     }
     SymbolSelect(symbol, true);
@@ -130,10 +131,11 @@ string GetLastTickInfo(string symbol)
 
 string GetLastXTickFromNow(string symbol, int nbrofticks)
 {
-    string errorParameters[] = { "ERROR" };
+    string errorParameters[] = {"ERROR"};
 
     // Make the symbol uppercase and standardized
-    if (!StringToUpper(symbol)) {
+    if (!StringToUpper(symbol))
+    {
         return MakeMessage("F021", "1", errorParameters);
     }
     SymbolSelect(symbol, true);
@@ -157,10 +159,11 @@ string GetLastXTickFromNow(string symbol, int nbrofticks)
 
 string GetActualBarInfo(string symbol, int timeframe)
 {
-    string errorParameters[] = { "ERROR" };
+    string errorParameters[] = {"ERROR"};
 
     // Make the symbol uppercase and standardized
-    if (!StringToUpper(symbol)) {
+    if (!StringToUpper(symbol))
+    {
         return MakeMessage("F041", "1", errorParameters);
     }
     SymbolSelect(symbol, true);
@@ -174,19 +177,19 @@ string GetActualBarInfo(string symbol, int timeframe)
             DoubleToString(rates[0].high, 5),
             DoubleToString(rates[0].low, 5),
             DoubleToString(rates[0].close, 5),
-            IntegerToString(rates[0].tick_volume)
-        };
+            IntegerToString(rates[0].tick_volume)};
         return MakeMessage("F041", "6", parameters);
     }
     return MakeMessage("F041", "1", errorParameters);
 }
 
-string GetSpecificBar(string symbol, int specific_bar_index, int timeframe)
+string GetSpecificBar(string symbol, int specific_bar_index, ENUM_TIMEFRAMES timeframe)
 {
-    string errorParameters[] = { "ERROR" };
+    string errorParameters[] = {"ERROR"};
 
     // Make the symbol uppercase and standardized
-    if (!StringToUpper(symbol)) {
+    if (!StringToUpper(symbol))
+    {
         return MakeMessage("F045", "1", errorParameters);
     }
     SymbolSelect(symbol, true);
@@ -201,19 +204,19 @@ string GetSpecificBar(string symbol, int specific_bar_index, int timeframe)
             DoubleToString(rates[0].high, 5),
             DoubleToString(rates[0].low, 5),
             DoubleToString(rates[0].close, 5),
-            IntegerToString(rates[0].tick_volume)
-        };
+            IntegerToString(rates[0].tick_volume)};
         return MakeMessage("F045", "7", parameters);
     }
     return MakeMessage("F045", "1", errorParameters);
 }
 
-string GetLastXBarsFromNow(string symbol, int timeframe, int nbrofbars)
+string GetLastXBarsFromNow(string symbol, ENUM_TIMEFRAMES timeframe, int nbrofbars)
 {
-    string errorParameters[] = { "ERROR" };
+    string errorParameters[] = {"ERROR"};
 
     // Make the symbol uppercase and standardized
-    if (!StringToUpper(symbol)) {
+    if (!StringToUpper(symbol))
+    {
         return MakeMessage("F042", "1", errorParameters);
     }
     SymbolSelect(symbol, true);
@@ -238,7 +241,7 @@ string GetLastXBarsFromNow(string symbol, int timeframe, int nbrofbars)
 
 string GetAllOpenPositions()
 {
-    string errorParameters[] = { "ERROR" };
+    string errorParameters[] = {"ERROR"};
 
     int total = PositionsTotal();
     if (total > 0)
@@ -268,7 +271,7 @@ string GetAllOpenPositions()
 
 string GetAllClosedPositions()
 {
-    string errorParameters[] = { "ERROR" };
+    string errorParameters[] = {"ERROR"};
 
     int total = HistoryDealsTotal();
     if (total > 0)
@@ -298,9 +301,14 @@ string GetAllClosedPositions()
 
 string GetAllDeletedOrders()
 {
-    string errorParameters[] = { "ERROR" };
+    string errorParameters[] = {"ERROR"};
+    if (!HistorySelect(0, TimeCurrent()))
+    {
+        // GetLastError();
+        return MakeMessage("F065", "1", errorParameters);
+    }
 
-    int total = OrdersHistoryTotal();
+    int total = HistoryOrdersTotal();
     if (total > 0)
     {
         string parameters[];
@@ -308,7 +316,7 @@ string GetAllDeletedOrders()
         {
             ulong ticket = OrderGetTicket(i);
             parameters[i] = IntegerToString(ticket) + "$" +
-                            OrderGetString(ticket, ORDER_SYMBOL) + "$" +
+                            OrderGetString(ORDER_SYMBOL, ticket) + "$" +
                             IntegerToString(OrderGetInteger(ticket, ORDER_TYPE)) + "$" +
                             IntegerToString(OrderGetInteger(ticket, ORDER_MAGIC)) + "$" +
                             DoubleToString(OrderGetDouble(ticket, ORDER_VOLUME), 2) + "$" +
@@ -327,7 +335,7 @@ string GetAllDeletedOrders()
 
 string GetAllPendingOrders()
 {
-    string errorParameters[] = { "ERROR" };
+    string errorParameters[] = {"ERROR"};
 
     int total = OrdersTotal();
     if (total > 0)
@@ -353,7 +361,7 @@ string GetAllPendingOrders()
 
 string GetAllClosedPositionsWithinWindow(datetime date_from, datetime date_to)
 {
-    string errorParameters[] = { "ERROR" };
+    string errorParameters[] = {"ERROR"};
 
     int total = HistoryDealsTotal();
     if (total > 0)
@@ -387,7 +395,7 @@ string GetAllClosedPositionsWithinWindow(datetime date_from, datetime date_to)
 
 string GetAllDeletedPendingOrdersWithinWindow(datetime date_from, datetime date_to)
 {
-    string errorParameters[] = { "ERROR" };
+    string errorParameters[] = {"ERROR"};
 
     int total = OrdersHistoryTotal();
     if (total > 0)
