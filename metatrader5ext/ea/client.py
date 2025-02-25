@@ -1117,3 +1117,4 @@ class EAClient(Connection):
             self.return_error = ERROR_DICT['00001']
             self.ok = False
             raise Exception(f"Failed to switch auto trading on/off: {error}")
+        

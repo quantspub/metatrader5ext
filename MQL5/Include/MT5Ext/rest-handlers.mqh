@@ -127,3 +127,293 @@ string GetLastTickInfo(string symbol)
     }
     return MakeMessage("F020", "1", errorParameters);
 }
+
+string GetLastXTickFromNow(string symbol, int nbrofticks)
+{
+    string errorParameters[] = { "ERROR" };
+
+    // Make the symbol uppercase and standardized
+    if (!StringToUpper(symbol)) {
+        return MakeMessage("F021", "1", errorParameters);
+    }
+    SymbolSelect(symbol, true);
+
+    MqlTick ticks[];
+    if (CopyTicks(symbol, ticks, COPY_TICKS_ALL, 0, nbrofticks) > 0)
+    {
+        string parameters[];
+        for (int i = 0; i < ArraySize(ticks); i++)
+        {
+            parameters[i] = IntegerToString(ticks[i].time) + "$" +
+                            DoubleToString(ticks[i].ask, 5) + "$" +
+                            DoubleToString(ticks[i].bid, 5) + "$" +
+                            DoubleToString(ticks[i].last, 5) + "$" +
+                            IntegerToString(ticks[i].volume);
+        }
+        return MakeMessage("F021", IntegerToString(ArraySize(parameters)), parameters);
+    }
+    return MakeMessage("F021", "1", errorParameters);
+}
+
+string GetActualBarInfo(string symbol, int timeframe)
+{
+    string errorParameters[] = { "ERROR" };
+
+    // Make the symbol uppercase and standardized
+    if (!StringToUpper(symbol)) {
+        return MakeMessage("F041", "1", errorParameters);
+    }
+    SymbolSelect(symbol, true);
+
+    MqlRates rates[];
+    if (CopyRates(symbol, (ENUM_TIMEFRAMES)timeframe, 0, 1, rates) > 0)
+    {
+        string parameters[] = {
+            IntegerToString(rates[0].time),
+            DoubleToString(rates[0].open, 5),
+            DoubleToString(rates[0].high, 5),
+            DoubleToString(rates[0].low, 5),
+            DoubleToString(rates[0].close, 5),
+            IntegerToString(rates[0].tick_volume)
+        };
+        return MakeMessage("F041", "6", parameters);
+    }
+    return MakeMessage("F041", "1", errorParameters);
+}
+
+string GetSpecificBar(string symbol, int specific_bar_index, int timeframe)
+{
+    string errorParameters[] = { "ERROR" };
+
+    // Make the symbol uppercase and standardized
+    if (!StringToUpper(symbol)) {
+        return MakeMessage("F045", "1", errorParameters);
+    }
+    SymbolSelect(symbol, true);
+
+    MqlRates rates[];
+    if (CopyRates(symbol, timeframe, specific_bar_index, 1, rates) > 0)
+    {
+        string parameters[] = {
+            symbol,
+            IntegerToString(rates[0].time),
+            DoubleToString(rates[0].open, 5),
+            DoubleToString(rates[0].high, 5),
+            DoubleToString(rates[0].low, 5),
+            DoubleToString(rates[0].close, 5),
+            IntegerToString(rates[0].tick_volume)
+        };
+        return MakeMessage("F045", "7", parameters);
+    }
+    return MakeMessage("F045", "1", errorParameters);
+}
+
+string GetLastXBarsFromNow(string symbol, int timeframe, int nbrofbars)
+{
+    string errorParameters[] = { "ERROR" };
+
+    // Make the symbol uppercase and standardized
+    if (!StringToUpper(symbol)) {
+        return MakeMessage("F042", "1", errorParameters);
+    }
+    SymbolSelect(symbol, true);
+
+    MqlRates rates[];
+    if (CopyRates(symbol, timeframe, 0, nbrofbars, rates) > 0)
+    {
+        string parameters[];
+        for (int i = 0; i < ArraySize(rates); i++)
+        {
+            parameters[i] = IntegerToString(rates[i].time) + "$" +
+                            DoubleToString(rates[i].open, 5) + "$" +
+                            DoubleToString(rates[i].high, 5) + "$" +
+                            DoubleToString(rates[i].low, 5) + "$" +
+                            DoubleToString(rates[i].close, 5) + "$" +
+                            IntegerToString(rates[i].tick_volume);
+        }
+        return MakeMessage("F042", IntegerToString(ArraySize(parameters)), parameters);
+    }
+    return MakeMessage("F042", "1", errorParameters);
+}
+
+string GetAllOpenPositions()
+{
+    string errorParameters[] = { "ERROR" };
+
+    int total = PositionsTotal();
+    if (total > 0)
+    {
+        string parameters[];
+        for (int i = 0; i < total; i++)
+        {
+            ulong ticket = PositionGetTicket(i);
+            parameters[i] = IntegerToString(ticket) + "$" +
+                            PositionGetString(POSITION_SYMBOL) + "$" +
+                            IntegerToString(PositionGetInteger(POSITION_TYPE)) + "$" +
+                            IntegerToString(PositionGetInteger(POSITION_MAGIC)) + "$" +
+                            DoubleToString(PositionGetDouble(POSITION_VOLUME), 2) + "$" +
+                            DoubleToString(PositionGetDouble(POSITION_PRICE_OPEN), 5) + "$" +
+                            IntegerToString(PositionGetInteger(POSITION_TIME)) + "$" +
+                            DoubleToString(PositionGetDouble(POSITION_SL), 5) + "$" +
+                            DoubleToString(PositionGetDouble(POSITION_TP), 5) + "$" +
+                            PositionGetString(POSITION_COMMENT) + "$" +
+                            DoubleToString(PositionGetDouble(POSITION_PROFIT), 2) + "$" +
+                            DoubleToString(PositionGetDouble(POSITION_SWAP), 2) + "$" +
+                            DoubleToString(PositionGetDouble(POSITION_COMMISSION), 2);
+        }
+        return MakeMessage("F061", IntegerToString(ArraySize(parameters)), parameters);
+    }
+    return MakeMessage("F061", "1", errorParameters);
+}
+
+string GetAllClosedPositions()
+{
+    string errorParameters[] = { "ERROR" };
+
+    int total = HistoryDealsTotal();
+    if (total > 0)
+    {
+        string parameters[];
+        for (int i = 0; i < total; i++)
+        {
+            ulong ticket = HistoryDealGetTicket(i);
+            parameters[i] = IntegerToString(ticket) + "$" +
+                            HistoryDealGetString(ticket, DEAL_SYMBOL) + "$" +
+                            IntegerToString(HistoryDealGetInteger(ticket, DEAL_TYPE)) + "$" +
+                            IntegerToString(HistoryDealGetInteger(ticket, DEAL_MAGIC)) + "$" +
+                            DoubleToString(HistoryDealGetDouble(ticket, DEAL_VOLUME), 2) + "$" +
+                            DoubleToString(HistoryDealGetDouble(ticket, DEAL_PRICE), 5) + "$" +
+                            IntegerToString(HistoryDealGetInteger(ticket, DEAL_TIME)) + "$" +
+                            DoubleToString(HistoryDealGetDouble(ticket, DEAL_SL), 5) + "$" +
+                            DoubleToString(HistoryDealGetDouble(ticket, DEAL_TP), 5) + "$" +
+                            HistoryDealGetString(ticket, DEAL_COMMENT) + "$" +
+                            DoubleToString(HistoryDealGetDouble(ticket, DEAL_PROFIT), 2) + "$" +
+                            DoubleToString(HistoryDealGetDouble(ticket, DEAL_SWAP), 2) + "$" +
+                            DoubleToString(HistoryDealGetDouble(ticket, DEAL_COMMISSION), 2);
+        }
+        return MakeMessage("F063", IntegerToString(ArraySize(parameters)), parameters);
+    }
+    return MakeMessage("F063", "1", errorParameters);
+}
+
+string GetAllDeletedOrders()
+{
+    string errorParameters[] = { "ERROR" };
+
+    int total = OrdersHistoryTotal();
+    if (total > 0)
+    {
+        string parameters[];
+        for (int i = 0; i < total; i++)
+        {
+            ulong ticket = OrderGetTicket(i);
+            parameters[i] = IntegerToString(ticket) + "$" +
+                            OrderGetString(ticket, ORDER_SYMBOL) + "$" +
+                            IntegerToString(OrderGetInteger(ticket, ORDER_TYPE)) + "$" +
+                            IntegerToString(OrderGetInteger(ticket, ORDER_MAGIC)) + "$" +
+                            DoubleToString(OrderGetDouble(ticket, ORDER_VOLUME), 2) + "$" +
+                            DoubleToString(OrderGetDouble(ticket, ORDER_PRICE_OPEN), 5) + "$" +
+                            IntegerToString(OrderGetInteger(ticket, ORDER_TIME_SETUP)) + "$" +
+                            DoubleToString(OrderGetDouble(ticket, ORDER_SL), 5) + "$" +
+                            DoubleToString(OrderGetDouble(ticket, ORDER_TP), 5) + "$" +
+                            DoubleToString(OrderGetDouble(ticket, ORDER_PRICE_CURRENT), 5) + "$" +
+                            IntegerToString(OrderGetInteger(ticket, ORDER_TIME_DONE)) + "$" +
+                            OrderGetString(ticket, ORDER_COMMENT);
+        }
+        return MakeMessage("F065", IntegerToString(ArraySize(parameters)), parameters);
+    }
+    return MakeMessage("F065", "1", errorParameters);
+}
+
+string GetAllPendingOrders()
+{
+    string errorParameters[] = { "ERROR" };
+
+    int total = OrdersTotal();
+    if (total > 0)
+    {
+        string parameters[];
+        for (int i = 0; i < total; i++)
+        {
+            ulong ticket = OrderGetTicket(i);
+            parameters[i] = IntegerToString(ticket) + "$" +
+                            OrderGetString(ticket, ORDER_SYMBOL) + "$" +
+                            IntegerToString(OrderGetInteger(ticket, ORDER_TYPE)) + "$" +
+                            IntegerToString(OrderGetInteger(ticket, ORDER_MAGIC)) + "$" +
+                            DoubleToString(OrderGetDouble(ticket, ORDER_VOLUME), 2) + "$" +
+                            DoubleToString(OrderGetDouble(ticket, ORDER_PRICE_OPEN), 5) + "$" +
+                            DoubleToString(OrderGetDouble(ticket, ORDER_SL), 5) + "$" +
+                            DoubleToString(OrderGetDouble(ticket, ORDER_TP), 5) + "$" +
+                            OrderGetString(ticket, ORDER_COMMENT);
+        }
+        return MakeMessage("F060", IntegerToString(ArraySize(parameters)), parameters);
+    }
+    return MakeMessage("F060", "1", errorParameters);
+}
+
+string GetAllClosedPositionsWithinWindow(datetime date_from, datetime date_to)
+{
+    string errorParameters[] = { "ERROR" };
+
+    int total = HistoryDealsTotal();
+    if (total > 0)
+    {
+        string parameters[];
+        for (int i = 0; i < total; i++)
+        {
+            ulong ticket = HistoryDealGetTicket(i);
+            datetime deal_time = HistoryDealGetInteger(ticket, DEAL_TIME);
+            if (deal_time >= date_from && deal_time <= date_to)
+            {
+                parameters[i] = IntegerToString(ticket) + "$" +
+                                HistoryDealGetString(ticket, DEAL_SYMBOL) + "$" +
+                                IntegerToString(HistoryDealGetInteger(ticket, DEAL_TYPE)) + "$" +
+                                IntegerToString(HistoryDealGetInteger(ticket, DEAL_MAGIC)) + "$" +
+                                DoubleToString(HistoryDealGetDouble(ticket, DEAL_VOLUME), 2) + "$" +
+                                DoubleToString(HistoryDealGetDouble(ticket, DEAL_PRICE), 5) + "$" +
+                                IntegerToString(deal_time) + "$" +
+                                DoubleToString(HistoryDealGetDouble(ticket, DEAL_SL), 5) + "$" +
+                                DoubleToString(HistoryDealGetDouble(ticket, DEAL_TP), 5) + "$" +
+                                HistoryDealGetString(ticket, DEAL_COMMENT) + "$" +
+                                DoubleToString(HistoryDealGetDouble(ticket, DEAL_PROFIT), 2) + "$" +
+                                DoubleToString(HistoryDealGetDouble(ticket, DEAL_SWAP), 2) + "$" +
+                                DoubleToString(HistoryDealGetDouble(ticket, DEAL_COMMISSION), 2);
+            }
+        }
+        return MakeMessage("F062", IntegerToString(ArraySize(parameters)), parameters);
+    }
+    return MakeMessage("F062", "1", errorParameters);
+}
+
+string GetAllDeletedPendingOrdersWithinWindow(datetime date_from, datetime date_to)
+{
+    string errorParameters[] = { "ERROR" };
+
+    int total = OrdersHistoryTotal();
+    if (total > 0)
+    {
+        string parameters[];
+        for (int i = 0; i < total; i++)
+        {
+            ulong ticket = OrderGetTicket(i);
+            datetime order_time = OrderGetInteger(ticket, ORDER_TIME_SETUP);
+            if (order_time >= date_from && order_time <= date_to)
+            {
+                parameters[i] = IntegerToString(ticket) + "$" +
+                                OrderGetString(ticket, ORDER_SYMBOL) + "$" +
+                                IntegerToString(OrderGetInteger(ticket, ORDER_TYPE)) + "$" +
+                                IntegerToString(OrderGetInteger(ticket, ORDER_MAGIC)) + "$" +
+                                DoubleToString(OrderGetDouble(ticket, ORDER_VOLUME), 2) + "$" +
+                                DoubleToString(OrderGetDouble(ticket, ORDER_PRICE_OPEN), 5) + "$" +
+                                IntegerToString(order_time) + "$" +
+                                DoubleToString(OrderGetDouble(ticket, ORDER_SL), 5) + "$" +
+                                DoubleToString(OrderGetDouble(ticket, ORDER_TP), 5) + "$" +
+                                DoubleToString(OrderGetDouble(ticket, ORDER_PRICE_CURRENT), 5) + "$" +
+                                IntegerToString(OrderGetInteger(ticket, ORDER_TIME_DONE)) + "$" +
+                                OrderGetString(ticket, ORDER_COMMENT);
+            }
+        }
+        return MakeMessage("F064", IntegerToString(ArraySize(parameters)), parameters);
+    }
+    return MakeMessage("F064", "1", errorParameters);
+}
