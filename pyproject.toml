@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metatrader5ext"
-version = "0.1.2"
+version = "0.1.3"
 description = "MetaTrader5 Extension"
 readme = "README.md"
 repository = "https://github.com/MarketCore/metatrader5ext"

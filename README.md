@@ -109,3 +109,6 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 - [MQL5 Articles](https://www.mql5.com/en/articles/234) 📚
 - [MQL5 Forum](https://www.mql5.com/en/forum/244840) 💬
 
+## Support 📞
+If you encounter any issues or have questions, feel free to open an issue on the GitHub repository or contact the author via email at hello.tradershub@gmail.com.
+
