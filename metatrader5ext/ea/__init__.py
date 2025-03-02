@@ -1,6 +1,8 @@
-from metatrader5ext.ea.client import EAClient
+from metatrader5ext.ea.client import EAClientConfig, EAClient
 from metatrader5ext.ea.connection import Connection
 from metatrader5ext.ea.errors import ERROR_DICT
+from metatrader5ext.ea.models import *
+from metatrader5ext.ea.utils import *
 
 # try:
 #     from metatrader5ext.ea.data_stream import MetaTrader5Streamer
@@ -15,6 +17,7 @@ from metatrader5ext.ea.errors import ERROR_DICT
 
 
 __all__ = [
+    "EAClientConfig",
     "EAClient",
     "Connection",
     "ERROR_DICT",
@@ -22,7 +25,7 @@ __all__ = [
 ]
 
 """
-IB low level messaging protocol for financial data streaming.
+low level messaging protocol for financial data streaming.
 
 use sockets not websockets
 use a custom protocol not FIX

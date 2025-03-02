@@ -8,23 +8,36 @@ import numpy as np
 from datetime import datetime, timezone
 from typing import Any, Callable, List, Optional
 from dataclasses import dataclass
-from .common import (
-    PlatformType,
-    MarketDataType,
-    NO_VALID_ID,
-    TERMINAL_CONNECT_FAIL,
-    SERVER_CONNECT_FAIL,
-    TerminalError,
-    CodeMsgPair,
-    BarData,
-    TickerId,
-)
-from .utils import ClientException, current_fn_name
-from .import_mt5_modules import MetaTrader5, MetaTrader5Streamer
+from .metatrader5 import MetaTrader5
+from .ea import EAClientConfig, EAClient
+from .common import ModuleType, ClientMode, MarketDataType, PlatformType
+# from .utils import ClientException, current_fn_name
 
-#TODO: Have 3 client modes:ipc,sockts and rpyc
-#  
+# from .common import (
+#     PlatformType,
+#     MarketDataType,
+#     NO_VALID_ID,
+#     TERMINAL_CONNECT_FAIL,
+#     SERVER_CONNECT_FAIL,
+#     TerminalError,
+#     CodeMsgPair,
+#     BarData,
+#     TickerId,
+# )
 
+@dataclass 
+class RpycConfig:
+    """
+    Configuration for RPYC.
+
+    Parameters:
+        host (str): Host address for the RPYC connection. Default is "localhost".
+        port (int): Port number for the RPYC connection. Default is 18812.
+        keep_alive (bool): Whether to keep the RPYC connection alive. Default is False.
+    """
+    host: str = "localhost"
+    port: int = 18812
+    keep_alive: bool = False
 
 @dataclass
 class MetaTrader5ExtConfig:
@@ -33,36 +46,19 @@ class MetaTrader5ExtConfig:
 
     Parameters:
         client_id (int): ID of the client. Default is 1.
+        module (ModuleType): Type of module. Default is ModuleType.MT.
+        mode (ClientMode): Mode of the client. Default is ClientMode.IPC.
         market_data_type (MarketDataType): Type of market data. Default is MarketDataType.NULL.
-        enable_stream (bool): Flag to enable or disable streaming. Default is True.
-        stream_interval (float): Interval in seconds for data streaming. Default is 0.025.
-        stream_host (str): Host address for the streaming socket. Default is "127.0.0.1".
-        stream_port (int): Port number for the streaming socket. Default is 15557.
-        ws_port (int): Port number for websockets live data streaming. Default is 15558.
-        stream_callback (Optional[Callable]): Callback function to handle the streamed data. Default is None.
-        stream_debug (bool): Whether to enable debug messages for streaming. Default is False.
-        stream_use_socket (bool): Whether to use sockets for streaming. Default is True.
-        stream_use_websockets (bool): Whether to use WebSockets for streaming. Default is True.
-        rpyc_host (str): Host address for the RPYC connection. Default is "localhost".
-        rpyc_port (int): Port number for the RPYC connection. Default is 18812.
-        rpyc_keep_alive (bool): Whether to keep the RPYC connection alive. Default is False.
+        ea_client_config (Optional[EAClientConfig]): Configuration for EAClient. Default is None.
+        rpyc_config (Optional[RpycConfig]): Configuration for RPYC. Default is None.
         logger (Optional[Callable]): A logger instance for logging messages. Default is None.
     """
-
     client_id: int = 1
+    module: ModuleType = ModuleType.MT
+    mode: ClientMode = ClientMode.IPC
     market_data_type: MarketDataType = MarketDataType.NULL
-    enable_stream: bool = True
-    stream_interval: float = 0.025
-    stream_host: str = "127.0.0.1"
-    stream_callback_port: int = 15557
-    stream_ws_port: int = 15558
-    stream_callback: Optional[Callable] = None
-    stream_debug: bool = False
-    stream_use_socket: bool = True
-    stream_use_websockets: bool = True
-    rpyc_host: str = "localhost"
-    rpyc_port: int = 18812
-    rpyc_keep_alive: bool = False
+    ea_client_config: Optional[EAClientConfig] = None
+    rpyc_config: Optional[RpycConfig] = None
     logger: Optional[Callable] = None
 
 
@@ -88,8 +84,9 @@ class MetaTrader5Ext:
         client_id (Optional[int]): ID of the client.
         market_data_type (MarketDataType): Type of market data.
     """
-
+    
     (DISCONNECTED, CONNECTING, CONNECTED, REDIRECT) = range(4)
+    
     _mt5: Optional[MetaTrader5] = None
     _stream_manager: Optional[MetaTrader5Streamer] = None
     _platform: Optional[PlatformType] = None
@@ -136,7 +133,7 @@ class MetaTrader5Ext:
             )
 
     def _initialize_stream_manager(self, config: MetaTrader5ExtConfig):
-        self._stream_manager = MetaTrader5Streamer(
+        self._stream_manager = EAClient(
             host=config.stream_host,
             stream_port=config.stream_callback_port,
             ws_port=config.stream_ws_port,
@@ -412,3 +409,4 @@ class MetaTrader5Ext:
             self.logger.info(
                 f"Unsubscribed from symbols: {symbols} with req_id: {req_id}"
             )
+``` 

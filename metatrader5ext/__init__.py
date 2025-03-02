@@ -54,12 +54,12 @@ from .ea import EAClient
 # from .metatrader5ext import MetaTrader5Ext, MetaTrader5ExtConfig
 # from .symbol import Symbol, SymbolInfo, process_symbol_details
 # from .order import Order, OrderState
-from .logging import Logger as MTLogger
-# from .common import *
+from metatrader5ext.logging import Logger as MTLogger
+from metatrader5ext.common import *
 # from .utils import *
 
 try:
-    from metatrader5ext.terminal import (
+    from metatrader5ext.metatrader5.terminal import (
         ContainerStatus,
         DockerizedMT5TerminalConfig,
         DockerizedMT5Terminal,

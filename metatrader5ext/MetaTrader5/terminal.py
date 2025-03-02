@@ -7,7 +7,7 @@ from time import sleep
 from typing import ClassVar, Dict
 
 from rpyc.utils.classic import DEFAULT_SERVER_PORT
-from .logging import Logger as MTLogger
+from metatrader5ext.logging import Logger as MTLogger
 
 
 class ContainerStatus(IntEnum):

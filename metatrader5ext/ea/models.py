@@ -1,14 +1,14 @@
 # To store types 
 from dataclasses import dataclass
 from typing import Literal, Optional
-from .common import UNSET_DOUBLE  # TODO: remove ibapi dependency
+from ..common import UNSET_DOUBLE  # TODO: remove ibapi dependency
 
 
 
 @dataclass
 class Symbol:
     """
-    Class describing an symbol's definition.
+    Class describing a symbol's definition.
 
     Parameters
     ----------
