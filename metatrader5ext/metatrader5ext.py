@@ -11,7 +11,8 @@ from dataclasses import dataclass
 from metatrader5ext.metatrader5 import RpycConfig, MetaTrader5
 from metatrader5ext.ea import EAClientConfig, EAClient
 from metatrader5ext.common import ModuleType, ClientMode, MarketDataType, PlatformType
-# from .utils import ClientException, current_fn_name
+from metatrader5ext.logging import Logger as MTLogger
+# from metatrader5ext.utils import ClientException, current_fn_name
 
 # from .common import (
 #     PlatformType,
