@@ -25,3 +25,30 @@ except ImportError as e:
 finally:
     if current_dir in sys.path:
         sys.path.remove(current_dir)
+
+
+try:
+    from metatrader5ext.metatrader5.terminal import (
+        ContainerStatus,
+        DockerizedMT5TerminalConfig,
+        DockerizedMT5Terminal,
+        ContainerExists,
+        NoContainer,
+        UnknownContainerStatus,
+        TerminalLoginFailure,
+    )
+except ImportError as e:
+    raise ImportError(
+        "Failed to import DockerizedMT5Terminal. Ensure that terminal file exists"
+    ) from e
+
+__all__ = [
+    "MetaTrader5",
+    "DockerizedMT5TerminalConfig",
+    "DockerizedMT5Terminal",
+    "ContainerStatus",
+    "ContainerExists",
+    "NoContainer",
+    "UnknownContainerStatus",
+    "TerminalLoginFailure",
+]

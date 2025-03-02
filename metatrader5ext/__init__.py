@@ -58,21 +58,6 @@ from metatrader5ext.logging import Logger as MTLogger
 from metatrader5ext.common import *
 # from .utils import *
 
-try:
-    from metatrader5ext.metatrader5.terminal import (
-        ContainerStatus,
-        DockerizedMT5TerminalConfig,
-        DockerizedMT5Terminal,
-        ContainerExists,
-        NoContainer,
-        UnknownContainerStatus,
-        TerminalLoginFailure,
-    )
-except ImportError as e:
-    raise ImportError(
-        "Failed to import DockerizedMT5Terminal. Ensure that terminal file exists"
-    ) from e
-
 
 __all__ = [
     "MetaTrader5",
