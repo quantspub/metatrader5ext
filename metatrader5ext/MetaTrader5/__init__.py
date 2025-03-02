@@ -3,6 +3,7 @@ import platform
 # import importlib.util
 import sys
 import os
+from .config import RpycConfig
 
 current_dir = os.path.dirname(__file__)
 try:
@@ -44,6 +45,7 @@ except ImportError as e:
 
 __all__ = [
     "MetaTrader5",
+    "RpycConfig",
     "DockerizedMT5TerminalConfig",
     "DockerizedMT5Terminal",
     "ContainerStatus",

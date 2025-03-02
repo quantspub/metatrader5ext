@@ -8,9 +8,9 @@ import numpy as np
 from datetime import datetime, timezone
 from typing import Any, Callable, List, Optional
 from dataclasses import dataclass
-from .metatrader5 import MetaTrader5
-from .ea import EAClientConfig, EAClient
-from .common import ModuleType, ClientMode, MarketDataType, PlatformType
+from metatrader5ext.metatrader5 import RpycConfig, MetaTrader5
+from metatrader5ext.ea import EAClientConfig, EAClient
+from metatrader5ext.common import ModuleType, ClientMode, MarketDataType, PlatformType
 # from .utils import ClientException, current_fn_name
 
 # from .common import (
@@ -25,19 +25,7 @@ from .common import ModuleType, ClientMode, MarketDataType, PlatformType
 #     TickerId,
 # )
 
-@dataclass 
-class RpycConfig:
-    """
-    Configuration for RPYC.
 
-    Parameters:
-        host (str): Host address for the RPYC connection. Default is "localhost".
-        port (int): Port number for the RPYC connection. Default is 18812.
-        keep_alive (bool): Whether to keep the RPYC connection alive. Default is False.
-    """
-    host: str = "localhost"
-    port: int = 18812
-    keep_alive: bool = False
 
 @dataclass
 class MetaTrader5ExtConfig:
@@ -84,7 +72,7 @@ class MetaTrader5Ext:
         client_id (Optional[int]): ID of the client.
         market_data_type (MarketDataType): Type of market data.
     """
-    
+
     (DISCONNECTED, CONNECTING, CONNECTED, REDIRECT) = range(4)
     
     _mt5: Optional[MetaTrader5] = None
