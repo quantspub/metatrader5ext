@@ -181,19 +181,6 @@ class MetaTrader5Ext:
 
         return ErrorInfo(code, msg)
 
-    def set_conn_state(self, conn_state):
-        """
-        Sets the connection state.
-
-        Parameters:
-            conn_state (int): The new connection state.
-        """
-        _conn_state = self.conn_state
-        self.conn_state = conn_state
-        self.logger.debug(
-            "%s conn_state: %s -> %s" % (id(self), _conn_state, self.conn_state)
-        )
-
     def reset(self):
         """
         Resets the connection and streaming state.
@@ -317,6 +304,24 @@ class MetaTrader5Ext:
             self._mt5.shutdown()
             self.logger.debug("Connection closed")
             self.reset()
+
+    def get_conn_state(self):
+        """
+        Retrieves the current connection state.
+
+        Returns:
+            int: The current connection state.
+        """
+        return self._conn_state
+
+    def set_conn_state(self, state: int):
+        """
+        Sets the connection state.
+
+        Parameters:
+            state (int): The new connection state.
+        """
+        self._conn_state = state
 
     #
     # Client
