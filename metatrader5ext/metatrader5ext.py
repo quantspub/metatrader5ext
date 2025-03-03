@@ -280,7 +280,7 @@ class MetaTrader5Ext:
                 raise TerminalError(TERMINAL_CONNECT_FAIL)
 
             self.connection_time = datetime.now(timezone.utc).timestamp()
-            self.send_msg((0, current_fn_name(), self._mt5.terminal_info()))
+            self.send_msg((0, self._mt5.terminal_info()))
 
         except TerminalError as e:
             TERMINAL_CONNECT_FAIL.errorMsg += f" => {e.__str__()}"
@@ -301,7 +301,12 @@ class MetaTrader5Ext:
         """
         with self._lock:
             self.logger.debug("disconnecting")
-            self._mt5.shutdown()
+            if self._mt5 is not None:
+                self._mt5.shutdown()
+
+            if self._ea_client is not None:
+                self._ea_client = None
+
             self.logger.debug("Connection closed")
             self.reset()
 
@@ -349,14 +354,14 @@ class MetaTrader5Ext:
         self.connected_server = account_info.server
         self.logger.info(f"{self.is_connected()} | {self.connected_server}")
         accounts = tuple([f"{account_info.login}"])
-        self.send_msg((0, current_fn_name(), accounts))
+        self.send_msg((0, accounts))
 
     def req_ids(self):
         """
         Generates a valid ID.
         """
         ids = np.random.randint(10000, size=1)
-        self.send_msg((0, current_fn_name(), ids.tolist()))
+        self.send_msg((0, ids.tolist()))
 
     def subscribe(
         self,
