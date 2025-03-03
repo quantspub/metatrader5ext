@@ -10,7 +10,7 @@ from typing import Any, Callable, List, Optional
 from dataclasses import dataclass
 from metatrader5ext.metatrader5 import RpycConfig, MetaTrader5
 from metatrader5ext.ea import EAClientConfig, EAClient
-from metatrader5ext.common import ModuleType, ClientMode, MarketDataType, PlatformType
+from metatrader5ext.common import Mode, MarketDataType, PlatformType
 from metatrader5ext.logging import Logger as MTLogger
 # from metatrader5ext.utils import ClientException, current_fn_name
 
@@ -35,19 +35,17 @@ class MetaTrader5ExtConfig:
 
     Parameters:
         client_id (int): ID of the client. Default is 1.
-        module (ModuleType): Type of module. Default is ModuleType.MT.
-        mode (ClientMode): Mode of the client. Default is ClientMode.IPC.
+        mode (Mode): Mode of the client. Default is Mode.MT_IPC.
         market_data_type (MarketDataType): Type of market data. Default is MarketDataType.NULL.
-        ea_client_config (Optional[EAClientConfig]): Configuration for EAClient. Default is None.
-        rpyc_config (Optional[RpycConfig]): Configuration for RPYC. Default is None.
+        ea_client (Optional[EAClientConfig]): Configuration for EAClient. Default is None.
+        rpyc (Optional[RpycConfig]): Configuration for RPYC. Default is None.
         logger (Optional[Callable]): A logger instance for logging messages. Default is None.
     """
     client_id: int = 1
-    module: ModuleType = ModuleType.MT
-    mode: ClientMode = ClientMode.IPC
+    mode: Mode = Mode.MT_IPC
     market_data_type: MarketDataType = MarketDataType.NULL
-    ea_client_config: Optional[EAClientConfig] = None
-    rpyc_config: Optional[RpycConfig] = None
+    ea_client: Optional[EAClientConfig] = None
+    rpyc: Optional[RpycConfig] = None
     logger: Optional[Callable] = None
 
 
@@ -112,14 +110,17 @@ class MetaTrader5Ext:
         self.config = config
 
     def _initialize_mt5(self, config: MetaTrader5ExtConfig):
-        if self._platform == PlatformType.WINDOWS:
-            self._mt5 = MetaTrader5
-        else:
+        if self.config.module == ModuleType.MT and self.config.mode == ClientMode.IPC and self._platform == PlatformType.WINDOWS:
+            pass 
+        
+        if self.config.rpyc != None:
             self._mt5 = MetaTrader5.MetaTrader5(
-                host=config.rpyc_host,
-                port=config.rpyc_port,
-                keep_alive=config.rpyc_keep_alive,
+                host=self.config.rpyc.host,
+                port=self.config.rpyc.port,
+                keep_alive=self.config.rpyc.keep_alive,
             )
+        else:
+            self._mt5 = MetaTrader5
 
     def _initialize_stream_manager(self, config: MetaTrader5ExtConfig):
         self._stream_manager = EAClient(
@@ -398,4 +399,3 @@ class MetaTrader5Ext:
             self.logger.info(
                 f"Unsubscribed from symbols: {symbols} with req_id: {req_id}"
             )
-``` 

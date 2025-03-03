@@ -1,21 +1,17 @@
-from datetime import datetime, timedelta
 from enum import Enum
-import sys
-import math
 
-from decimal import Decimal
-from dataclasses import dataclass
-
-
-
-class ClientMode(Enum):
-    """Client mode type.
+class Mode(Enum):
+    """Mode type.
     
-    Includes 3 client modes: IPC, SOCKETS, and RPYC.
+    Includes 3 client modes: MT_IPC, MT_RPYC, and EA_SOCKETS.
+
+    MT_IPC: Mode for MetaTrader IPC communication on Windows.
+    MT_RPYC: Mode for MetaTrader RPYC communication on Linux.
+    EA_SOCKETS: Mode for EA communication using sockets.
     """
-    IPC = "IPC"
-    SOCKETS = "SOCKETS"
-    RPYC = "RPYC"
+    MT_IPC = "MT_IPC"
+    MT_RPYC = "MT_RPYC"
+    EA_SOCKETS = "EA_SOCKETS"
 
     def to_str(self) -> str:
         """Returns the string representation of the enum value."""
@@ -46,17 +42,3 @@ class PlatformType(Enum):
     def to_str(self) -> str:
         """Returns the string representation of the enum value."""
         return self.value
-    
-class ModuleType(Enum):
-    """Module type.
-    
-    Includes 2 module types: MT and EA.
-    """
-    MT = "MT"
-    EA = "EA"
-
-    def to_str(self) -> str:
-        """Returns the string representation of the enum value."""
-        return self.value
-    
-
