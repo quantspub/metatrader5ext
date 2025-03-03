@@ -8,21 +8,6 @@ from dataclasses import dataclass
 from .MetaTrader5 import MetaTrader5 as mt5
 
 
-
-class Mode(Enum):
-    """Market data type.
-    
-    Includes 3 client modes: ipc, sockets, and rpyc.
-    """
-    IPC = "IPC"
-    SOCKETS = "SOCKETS"
-    RPYC = "RPYC"
-
-    def to_str(self) -> str:
-        """Returns the string representation of the enum value."""
-        return self.value
-    
-
 NO_VALID_ID = -1
 MAX_MSG_LEN = 0xFFFFFF  # 16Mb - 1byte
 
