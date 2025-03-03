@@ -10,7 +10,7 @@ from typing import Any, Callable, List, Optional
 from dataclasses import dataclass
 from metatrader5ext.metatrader5 import RpycConfig, MetaTrader5
 from metatrader5ext.ea import EAClientConfig, EAClient
-from metatrader5ext.common import Mode, MarketData, PlatformType
+from metatrader5ext.common import Mode, MarketData, PlatformType, ErrorInfo
 from metatrader5ext.logging import Logger as MTLogger
 # from metatrader5ext.utils import ClientException, current_fn_name
 
@@ -21,7 +21,7 @@ from metatrader5ext.logging import Logger as MTLogger
 #     TERMINAL_CONNECT_FAIL,
 #     SERVER_CONNECT_FAIL,
 #     TerminalError,
-#     CodeMsgPair,
+#     ErrorInfo,
 #     BarData,
 #     TickerId,
 # )
@@ -36,7 +36,7 @@ class MetaTrader5ExtConfig:
     Parameters:
         id (int): ID of the client. Default is 1.
         mode (Mode): Mode of the client. Default is Mode.IPC.
-        market_data_type (MarketDataType): Type of market data. Default is MarketDataType.NULL.
+        market_data (MarketData): Type of market data. Default is MarketData.NULL.
         ea_client (Optional[EAClientConfig]): Configuration for EAClient. Default is None.
         rpyc (Optional[RpycConfig]): Configuration for RPYC. Default is None.
         logger (Optional[Callable]): A logger instance for logging messages. Default is None.
@@ -102,48 +102,48 @@ class MetaTrader5Ext:
         self._config = config
         self._ea_config: Optional[EAClientConfig] = None
 
-    def _initialize_mt5(self):
-        if self._config.mode == Mode.IPC or self._config.mode == Mode.RPYC:
-            self._mt5 = self._initialize_mt_client()
-        elif self._config.mode == Mode.EA:
-            # initialize EA connection
-            if self._config.ea_client != None:
-                self._mt5 = self._initialize_ea_client()
+    def _initialize_mt5(self, config: MetaTrader5ExtConfig):
+        if config.mode == Mode.IPC or config.mode == Mode.RPYC:
+            self._mt5 = self._initialize_mt_client(config)
+        elif config.mode == Mode.EA:
+            if config.ea_client is not None:
+                self._ea_client = self._initialize_ea_client(config)
             else:
                 raise RuntimeError("EA configuration is required for EA mode.")
+        elif config.mode == Mode.EA_IPC or config.mode == Mode.EA_RPYC:
+            self._mt5 = self._initialize_mt_client(config)
+            if config.ea_client is not None:
+                self._ea_client = self._initialize_ea_client(config)
         else:
             raise ValueError("Invalid mode selected.")
 
-    def _initialize_mt_client(self):
-        if self._config.mode == Mode.IPC:
+    def _initialize_mt_client(self, config: MetaTrader5ExtConfig):
+        if config.mode == Mode.IPC:
             return MetaTrader5
-
-        elif self._config.mode == Mode.RPYC:
-            # initialize rpyc connection
-            if self._config.rpyc != None:
+        elif config.mode == Mode.RPYC:
+            if config.rpyc is not None:
                 return MetaTrader5.MetaTrader5(
-                host=self._config.rpyc.host,
-                port=self._config.rpyc.port,
-                keep_alive=self._config.rpyc.keep_alive,
-            )
+                    host=config.rpyc.host,
+                    port=config.rpyc.port,
+                    keep_alive=config.rpyc.keep_alive,
+                )
             else:
                 raise RuntimeError("RPYC configuration is required for RPYC mode.")
-        
         else:
-            raise ValueError()
+            raise ValueError("Invalid mode for MT client initialization.")
 
-    def _initialize_ea_client(self):
-        self._is_stream = self._config.ea_client.enable_stream  
+    def _initialize_ea_client(self, config: MetaTrader5ExtConfig):
+        self._is_stream = config.ea_client.enable_stream
         self._ea_config = EAClientConfig(
-                    host=self._config.ea_client.host,
-                    rest_port=self._config.ea_client.rest_port,
-                    stream_port=self._config.ea_client.stream_port,
-                    encoding=self._config.ea_client.encoding,
-                    use_socket=self._config.ea_client.use_socket,
-                    enable_stream=self._config.ea_client.enable_stream,
-                    callback=self._config.ea_client.callback,
-                    debug=self._config.ea_client.debug,
-                )
+            host=config.ea_client.host,
+            rest_port=config.ea_client.rest_port,
+            stream_port=config.ea_client.stream_port,
+            encoding=config.ea_client.encoding,
+            use_socket=config.ea_client.use_socket,
+            enable_stream=config.ea_client.enable_stream,
+            callback=config.ea_client.callback,
+            debug=config.ea_client.debug,
+        )
         return EAClient(config=self._ea_config)
 
     def is_connected(self):
@@ -164,12 +164,12 @@ class MetaTrader5Ext:
         """
         return self.connection_time
 
-    def get_error(self) -> Optional[CodeMsgPair]:
+    def get_error(self) -> Optional[ErrorInfo]:
         """
         Retrieves the last error from the MetaTrader 5 terminal.
 
         Returns:
-            Optional[CodeMsgPair]: The last error code and message.
+            Optional[ErrorInfo]: The last error code and message.
         """
         if not self.is_connected():
             self.logger.debug("not connected to terminal")
@@ -177,9 +177,9 @@ class MetaTrader5Ext:
 
         code, msg = self._mt5.last_error()
         if code == self._mt5.RES_E_INTERNAL_FAIL_INIT:
-            return CodeMsgPair(code, f"Terminal initialization failed: {msg}")
+            return ErrorInfo(code, f"Terminal initialization failed: {msg}")
 
-        return CodeMsgPair(code, msg)
+        return ErrorInfo(code, msg)
 
     def set_conn_state(self, conn_state):
         """
@@ -383,10 +383,8 @@ class MetaTrader5Ext:
             callback (Callable): Callback function to handle the streamed data.
             **kwargs: Additional arguments for the callback.
         """
-        if self._stream_manager:
-            self._stream_manager.create_streaming_task(
-                req_id, symbols, interval, callback, **kwargs
-            )
+        if self._ea_client:
+            self._ea_client.start_stream(callback)
             self.logger.info(f"Subscribed to symbols: {symbols} with req_id: {req_id}")
 
     def unsubscribe(self, req_id: str, symbols: List[str]):
@@ -397,8 +395,8 @@ class MetaTrader5Ext:
             req_id (str): Request ID for the subscription.
             symbols (List[str]): List of symbols to unsubscribe from.
         """
-        if self._stream_manager:
-            self._stream_manager.stop_streaming_task(req_id, symbols)
+        if self._ea_client:
+            self._ea_client.stop_stream()
             self.logger.info(
                 f"Unsubscribed from symbols: {symbols} with req_id: {req_id}"
             )
