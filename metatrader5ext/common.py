@@ -21,20 +21,6 @@ class Mode(Enum):
         """Returns the string representation of the enum value."""
         return self.value
     
-class MarketData(Enum):
-    """Market data type.
-    
-    Includes 4 market data types: NULL, REALTIME, FROZEN, and DELAYED.
-    """
-    NULL = "N/A"
-    REALTIME = "REALTIME"
-    FROZEN = "FROZEN"
-    DELAYED
-
-    def to_str(self) -> str:
-        """Returns the string representation of the enum value."""
-        return self.value
-    
 class PlatformType(Enum):
     """Platform type.
     

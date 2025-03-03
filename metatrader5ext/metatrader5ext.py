@@ -10,7 +10,7 @@ from typing import Any, Callable, List, Optional
 from dataclasses import dataclass
 from metatrader5ext.metatrader5 import RpycConfig, MetaTrader5
 from metatrader5ext.ea import EAClientConfig, EAClient
-from metatrader5ext.common import Mode, MarketData, PlatformType, ErrorInfo
+from metatrader5ext.common import Mode, PlatformType, ErrorInfo
 from metatrader5ext.logging import Logger as MTLogger
 # from metatrader5ext.utils import ClientException, current_fn_name
 
@@ -43,7 +43,6 @@ class MetaTrader5ExtConfig:
     """
     id: int = 1
     mode: Mode = Mode.IPC
-    market_data: MarketData = MarketData.NULL
     ea_client: Optional[EAClientConfig] = None
     rpyc: Optional[RpycConfig] = None
     logger: Optional[Callable] = None
@@ -61,12 +60,11 @@ class MetaTrader5Ext:
         _msg_queue (queue.Queue): Queue for managing messages.
         _lock (threading.Lock): Lock for thread-safe operations.
         _mt5 (MetaTrader5): MetaTrader5 instance.
-        _stream_manager (MetaTrader5Streamer): Server for handling data streams.
+        _ea_client (EAClient): Server for handling data streams.
         enable_stream (bool): Flag to enable or disable streaming.
         connected (bool): Connection status.
         connection_time (Optional[float]): Time of the connection.
         client_id (Optional[int]): ID of the client.
-        market_data (MarketData): Type of market data.
     """
 
     (DISCONNECTED, CONNECTING, CONNECTED, REDIRECT) = range(4)
@@ -98,7 +96,6 @@ class MetaTrader5Ext:
         self._conn_state = None
         self._terminal_version = None
         self._id = config.id
-        self._market_data = config.market_data
         self._config = config
         self._ea_config: Optional[EAClientConfig] = None
 
@@ -174,6 +171,9 @@ class MetaTrader5Ext:
         if not self.is_connected():
             self.logger.debug("not connected to terminal")
             return None
+        
+        if self._mt5 is None:
+            return ErrorInfo(0, "MetaTrader5 instance is not initialized")
 
         code, msg = self._mt5.last_error()
         if code == self._mt5.RES_E_INTERNAL_FAIL_INIT:
@@ -203,11 +203,10 @@ class MetaTrader5Ext:
         self._terminal_version = None
         self.connection_time = None
         self.conn_state = None
-        if self._stream_manager:
-            self._stream_manager.stop()
-            self._stream_manager = None
+        if self._ea_client:
+            self._ea_client.stop()
+            self._ea_client = None
         self._msg_queue = queue.Queue()
-        self.market_data_type = MarketData.NULL
         self.set_conn_state(MetaTrader5Ext.DISCONNECTED)
 
     #
@@ -353,17 +352,6 @@ class MetaTrader5Ext:
         """
         ids = np.random.randint(10000, size=1)
         self.send_msg((0, current_fn_name(), ids.tolist()))
-
-    def req_market_data_type(self, market_data_type: MarketData):
-        """
-        Requests the market data type.
-
-        Parameters:
-            market_data_type (MarketData): The market data type to request.
-        """
-        self.market_data_type = market_data_type
-        self.send_msg((0, current_fn_name(), self.market_data_type.value))
-        return None
 
     def subscribe(
         self,
