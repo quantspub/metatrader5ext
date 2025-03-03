@@ -4,6 +4,7 @@ import queue
 import socket
 import sys
 import threading
+from metatrader5ext.errors import TerminalError
 import numpy as np
 from datetime import datetime, timezone
 from typing import Any, Callable, List, Optional
@@ -99,6 +100,23 @@ class MetaTrader5Ext:
         self._config = config
         self._ea_config: Optional[EAClientConfig] = None
 
+    def __del__(self):
+        """
+        Destructor to ensure cleanup.
+
+        Resets the connection and state.
+        """
+        self.disconnect()
+        
+        self.connected = False
+        self.client_id = None
+        self._terminal_version = None
+        self.connection_time = None
+        self._conn_state = MetaTrader5Ext.DISCONNECTED
+        self._mt5 = None
+        self._ea_client = None
+        self._msg_queue = queue.Queue()
+
     def _initialize_mt5(self, config: MetaTrader5ExtConfig):
         if config.mode == Mode.IPC or config.mode == Mode.RPYC:
             self._mt5 = self._initialize_mt_client(config)
@@ -161,18 +179,16 @@ class MetaTrader5Ext:
         """
         return self.connection_time
 
-    def get_error(self) -> Optional[ErrorInfo]:
+    def get_error(self) -> ErrorInfo:
         """
         Retrieves the last error from the MetaTrader 5 terminal.
 
         Returns:
             Optional[ErrorInfo]: The last error code and message.
         """
-        if not self.is_connected():
+
+        if not self.is_connected() or self._mt5 is None:
             self.logger.debug("not connected to terminal")
-            return None
-        
-        if self._mt5 is None:
             return ErrorInfo(0, "MetaTrader5 instance is not initialized")
 
         code, msg = self._mt5.last_error()
@@ -181,24 +197,6 @@ class MetaTrader5Ext:
 
         return ErrorInfo(code, msg)
 
-    def reset(self):
-        """
-        Resets the connection and streaming state.
-        """
-        self.connected = False
-        self.client_id = None
-        self._terminal_version = None
-        self.connection_time = None
-        self.conn_state = None
-        if self._ea_client:
-            self._ea_client.stop()
-            self._ea_client = None
-        self._msg_queue = queue.Queue()
-        self.set_conn_state(MetaTrader5Ext.DISCONNECTED)
-
-    #
-    # Messaging Queue
-    #
     def send_msg(self, msg: Any):
         """
         Sends a message to the MetaTrader 5 terminal.
@@ -281,16 +279,17 @@ class MetaTrader5Ext:
 
             self.connection_time = datetime.now(timezone.utc).timestamp()
             self.send_msg((0, self._mt5.terminal_info()))
+            self.managed_accounts()
 
         except TerminalError as e:
-            TERMINAL_CONNECT_FAIL.errorMsg += f" => {e.__str__()}"
+            TERMINAL_CONNECT_FAIL._msg += f" => {e.__str__()}"
             self.logger.error(
                 NO_VALID_ID,
                 TERMINAL_CONNECT_FAIL.code(),
                 TERMINAL_CONNECT_FAIL.msg(),
             )
         except socket.error as e:
-            SERVER_CONNECT_FAIL.errorMsg += f" => {e.__str__()}"
+            SERVER_CONNECT_FAIL._msg += f" => {e.__str__()}"
             self.logger.error(
                 NO_VALID_ID, SERVER_CONNECT_FAIL.code(), SERVER_CONNECT_FAIL.msg()
             )
@@ -308,7 +307,6 @@ class MetaTrader5Ext:
                 self._ea_client = None
 
             self.logger.debug("Connection closed")
-            self.reset()
 
     def get_conn_state(self):
         """
@@ -328,24 +326,6 @@ class MetaTrader5Ext:
         """
         self._conn_state = state
 
-    #
-    # Client
-    #
-    def start_api(self):
-        """
-        Check the Initialized terminal connection after connecting to rpyc socket.
-        """
-
-        if not self.is_connected():
-            text = f"MetaTrader5 initialization failed, error = {self.get_error()}"
-            self.logger.error(text)
-            raise ClientException(
-                TERMINAL_CONNECT_FAIL.code(), TERMINAL_CONNECT_FAIL.msg(), text
-            )
-
-        self.req_ids()
-        self.managed_accounts()
-
     def managed_accounts(self):
         """
         Retrieves and logs the managed accounts.
@@ -355,13 +335,6 @@ class MetaTrader5Ext:
         self.logger.info(f"{self.is_connected()} | {self.connected_server}")
         accounts = tuple([f"{account_info.login}"])
         self.send_msg((0, accounts))
-
-    def req_ids(self):
-        """
-        Generates a valid ID.
-        """
-        ids = np.random.randint(10000, size=1)
-        self.send_msg((0, ids.tolist()))
 
     def subscribe(
         self,

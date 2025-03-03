@@ -1,0 +1,3 @@
+
+class TerminalError(Exception):
+    pass
