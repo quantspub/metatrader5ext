@@ -3,21 +3,21 @@ from enum import Enum
 class Mode(Enum):
     """Mode type.
     
-    Includes 3 client modes: MT_IPC, MT_RPYC, and EA_SOCKETS.
+    Includes 3 client modes: IPC, RPYC, and EA.
 
-    MT_IPC: Mode for MetaTrader IPC communication on Windows.
-    MT_RPYC: Mode for MetaTrader RPYC communication on Linux.
-    EA_SOCKETS: Mode for EA communication using sockets.
+    IPC: Mode for MetaTrader IPC communication on Windows.
+    RPYC: Mode for MetaTrader RPYC communication on Linux.
+    EA: Mode for EA communication using sockets.
     """
-    MT_IPC = "MT_IPC"
-    MT_RPYC = "MT_RPYC"
-    EA_SOCKETS = "EA_SOCKETS"
+    IPC = "IPC"
+    RPYC = "RPYC"
+    EA = "EA"
 
     def to_str(self) -> str:
         """Returns the string representation of the enum value."""
         return self.value
     
-class MarketDataType(Enum):
+class MarketData(Enum):
     """Market data type.
     
     Includes 4 market data types: NULL, REALTIME, FROZEN, and DELAYED.

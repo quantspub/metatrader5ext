@@ -10,7 +10,7 @@ from typing import Any, Callable, List, Optional
 from dataclasses import dataclass
 from metatrader5ext.metatrader5 import RpycConfig, MetaTrader5
 from metatrader5ext.ea import EAClientConfig, EAClient
-from metatrader5ext.common import Mode, MarketDataType, PlatformType
+from metatrader5ext.common import Mode, MarketData, PlatformType
 from metatrader5ext.logging import Logger as MTLogger
 # from metatrader5ext.utils import ClientException, current_fn_name
 
@@ -34,16 +34,16 @@ class MetaTrader5ExtConfig:
     Configuration for MetaTrader5Ext.
 
     Parameters:
-        client_id (int): ID of the client. Default is 1.
+        id (int): ID of the client. Default is 1.
         mode (Mode): Mode of the client. Default is Mode.MT_IPC.
         market_data_type (MarketDataType): Type of market data. Default is MarketDataType.NULL.
         ea_client (Optional[EAClientConfig]): Configuration for EAClient. Default is None.
         rpyc (Optional[RpycConfig]): Configuration for RPYC. Default is None.
         logger (Optional[Callable]): A logger instance for logging messages. Default is None.
     """
-    client_id: int = 1
+    id: int = 1
     mode: Mode = Mode.MT_IPC
-    market_data_type: MarketDataType = MarketDataType.NULL
+    market_data: MarketData = MarketData.NULL
     ea_client: Optional[EAClientConfig] = None
     rpyc: Optional[RpycConfig] = None
     logger: Optional[Callable] = None
@@ -66,17 +66,16 @@ class MetaTrader5Ext:
         connected (bool): Connection status.
         connection_time (Optional[float]): Time of the connection.
         client_id (Optional[int]): ID of the client.
-        market_data_type (MarketDataType): Type of market data.
+        market_data (MarketData): Type of market data.
     """
 
     (DISCONNECTED, CONNECTING, CONNECTED, REDIRECT) = range(4)
     
     _mt5: Optional[MetaTrader5] = None
+    _ea_client: Optional[EAClient] = None
     _stream_manager: Optional[MetaTrader5Streamer] = None
     _platform: Optional[PlatformType] = None
     logger: Optional[logging.Logger] = None
-    client_id: int = 1
-    market_data_type: MarketDataType = MarketDataType.NULL
 
     def __init__(self, config: MetaTrader5ExtConfig):
         self._platform = PlatformType(platform.system().capitalize())
@@ -85,7 +84,7 @@ class MetaTrader5Ext:
         )
         self._msg_queue = queue.Queue()
         self._lock = threading.Lock()
-        self.enable_stream = config.enable_stream
+        self._is_stream = False
 
         try:
             self._initialize_mt5(config)
@@ -98,26 +97,49 @@ class MetaTrader5Ext:
         if self.enable_stream:
             self._initialize_stream_manager(config)
 
-        self.connected = False
-        self.connection_time = None
+        self._connected = False
+        self._connection_time = None
         self._conn_state = None
         self._terminal_version = None
-        self.client_id = config.client_id
-        self.market_data_type = config.market_data_type
-        self.config = config
+        self._id = config.id
+        self._market_data = config.market_data
+        self._config = config
+        self._ea_config: Optional[EAClientConfig] = None
 
     def _initialize_mt5(self, config: MetaTrader5ExtConfig):
-        if self.config.module == ModuleType.MT and self.config.mode == ClientMode.IPC and self._platform == PlatformType.WINDOWS:
-            pass 
-        
-        if self.config.rpyc != None:
-            self._mt5 = MetaTrader5.MetaTrader5(
-                host=self.config.rpyc.host,
-                port=self.config.rpyc.port,
-                keep_alive=self.config.rpyc.keep_alive,
-            )
-        else:
+        if self._config.mode == Mode.IPC:
             self._mt5 = MetaTrader5
+
+        elif self._config.mode == Mode.RPYC:
+            # initialize rpyc connection
+            if self._config.rpyc != None:
+                self._mt5 = MetaTrader5.MetaTrader5(
+                host=self._config.rpyc.host,
+                port=self._config.rpyc.port,
+                keep_alive=self._config.rpyc.keep_alive,
+            )
+            else:
+                raise RuntimeError("RPYC configuration is required for RPYC mode.")
+        
+        elif self._config.mode == Mode.EA:
+            # initialize EA connection
+            if self._config.ea_client != None:
+                self._is_stream = self._config.ea_client.enable_stream  
+                self._ea_config = EAClientConfig(
+                    host=self._config.ea_client.host,
+                    rest_port=self._config.ea_client.rest_port,
+                    stream_port=self._config.ea_client.stream_port,
+                    encoding=self._config.ea_client.encoding,
+                    use_socket=self._config.ea_client.use_socket,
+                    enable_stream=self._config.ea_client.enable_stream,
+                    callback=self._config.ea_client.callback,
+                    debug=self._config.ea_client.debug,
+                )
+                self._mt5 = EAClient(config=self._ea_config)
+            else:
+                raise RuntimeError("EA configuration is required for EA mode.")
+        else:
+            raise ValueError("Invalid mode selected.")
 
     def _initialize_stream_manager(self, config: MetaTrader5ExtConfig):
         self._stream_manager = MetaTrader5Streamer(
@@ -189,7 +211,7 @@ class MetaTrader5Ext:
             self._stream_manager.stop()
             self._stream_manager = None
         self._msg_queue = queue.Queue()
-        self.market_data_type = MarketDataType.NULL
+        self.market_data_type = MarketData.NULL
         self.set_conn_state(MetaTrader5Ext.DISCONNECTED)
 
     #
@@ -336,12 +358,12 @@ class MetaTrader5Ext:
         ids = np.random.randint(10000, size=1)
         self.send_msg((0, current_fn_name(), ids.tolist()))
 
-    def req_market_data_type(self, market_data_type: MarketDataType):
+    def req_market_data_type(self, market_data_type: MarketData):
         """
         Requests the market data type.
 
         Parameters:
-            market_data_type (MarketDataType): The market data type to request.
+            market_data_type (MarketData): The market data type to request.
         """
         self.market_data_type = market_data_type
         self.send_msg((0, current_fn_name(), self.market_data_type.value))

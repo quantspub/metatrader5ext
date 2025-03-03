@@ -36,8 +36,9 @@ class EAClient(Connection):
         return_error (str): Stores the error message for the last command.
         ok (bool): Indicates if the last command was successful.
     """
-    def __init__(self, host: str = '127.0.0.1', rest_port: int = 15556, stream_port: int = 15557, encoding: str = 'utf-8', debug: bool = False) -> None:
-        super().__init__(host, rest_port, stream_port, encoding, debug)
+    def __init__(self, config: EAClientConfig) -> None:
+        super().__init__(config.host, config.rest_port, config.stream_port, config.encoding, config.debug)
+        self.config = config
         self.return_error = ''
         self.ok = False
 
