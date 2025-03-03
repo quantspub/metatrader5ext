@@ -62,12 +62,9 @@ class MetaTrader5Ext:
         _lock (threading.Lock): Lock for thread-safe operations.
         _mt5 (MetaTrader5): MetaTrader5 instance.
         _stream_manager (MetaTrader5Streamer): Server for handling data streams.
-        stream_interval (float): Interval for streaming data.
         enable_stream (bool): Flag to enable or disable streaming.
         connected (bool): Connection status.
         connection_time (Optional[float]): Time of the connection.
-        conn_state (Optional[int]): State of the connection.
-        _terminal_version (Optional[int]): Version of the terminal.
         client_id (Optional[int]): ID of the client.
         market_data_type (MarketDataType): Type of market data.
     """
@@ -123,15 +120,10 @@ class MetaTrader5Ext:
             self._mt5 = MetaTrader5
 
     def _initialize_stream_manager(self, config: MetaTrader5ExtConfig):
-        self._stream_manager = EAClient(
-            host=config.stream_host,
-            stream_port=config.stream_callback_port,
-            ws_port=config.stream_ws_port,
+        self._stream_manager = MetaTrader5Streamer(
             callback=config.stream_callback,
-            stream_interval=config.stream_interval,
-            use_socket=config.stream_use_socket,
-            use_websockets=config.stream_use_websockets,
             debug=config.stream_debug,
+            use_socket=config.stream_use_socket,
         )
         self._stream_manager.start()
 
@@ -374,13 +366,9 @@ class MetaTrader5Ext:
             **kwargs: Additional arguments for the callback.
         """
         if self._stream_manager:
-            if self.config.stream_use_socket:
-                self._stream_manager.set_callback(callback)
-            else:
-                self._stream_manager.create_streaming_task(
-                    req_id, symbols, interval, callback, kwargs
-                )
-            self._stream_manager.start()
+            self._stream_manager.create_streaming_task(
+                req_id, symbols, interval, callback, **kwargs
+            )
             self.logger.info(f"Subscribed to symbols: {symbols} with req_id: {req_id}")
 
     def unsubscribe(self, req_id: str, symbols: List[str]):
@@ -392,10 +380,7 @@ class MetaTrader5Ext:
             symbols (List[str]): List of symbols to unsubscribe from.
         """
         if self._stream_manager:
-            if not self.config.stream_use_socket:
-                self._stream_manager.stop_streaming_task(req_id, symbols)
-
-            self._stream_manager.stop()
+            self._stream_manager.stop_streaming_task(req_id, symbols)
             self.logger.info(
                 f"Unsubscribed from symbols: {symbols} with req_id: {req_id}"
             )
