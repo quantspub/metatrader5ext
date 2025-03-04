@@ -22,17 +22,11 @@ class ErrorInfo:
         """Returns the error message."""
         return self._msg
 
-
-ALREADY_CONNECTED = ErrorInfo(mt5.RES_S_OK, "Already connected.")
+ALREADY_CONNECTED = ErrorInfo(1, "Already connected.")
 SERVER_CONNECT_FAIL = ErrorInfo(-1, "Rpyc Server connection failed")
-TERMINAL_CONNECT_FAIL = ErrorInfo(
-    mt5.RES_E_INTERNAL_FAIL_INIT, "Terminal initialization failed"
-)
-
+TERMINAL_CONNECT_FAIL = ErrorInfo(-10003, "Terminal initialization failed")
 UPDATE_TERMINAL = ErrorInfo(503, "The TERMINAL is out of date and must be upgraded.")
-
 NOT_CONNECTED = ErrorInfo(504, "Not connected")
-
 UNKNOWN_ID = ErrorInfo(505, "Fatal Error: Unknown message id.")
 UNSUPPORTED_VERSION = ErrorInfo(506, "Unsupported version")
 BAD_LENGTH = ErrorInfo(507, "Bad message length")

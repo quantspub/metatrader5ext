@@ -4,29 +4,15 @@ import queue
 import socket
 import sys
 import threading
-from metatrader5ext.errors import TerminalError
 import numpy as np
 from datetime import datetime, timezone
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, List, Optional, Union
 from dataclasses import dataclass
 from metatrader5ext.metatrader5 import RpycConfig, MetaTrader5
 from metatrader5ext.ea import EAClientConfig, EAClient
-from metatrader5ext.common import Mode, PlatformType, ErrorInfo
+from metatrader5ext.common import Mode, PlatformType
+from metatrader5ext.errors import ErrorInfo, TerminalError
 from metatrader5ext.logging import Logger as MTLogger
-# from metatrader5ext.utils import ClientException, current_fn_name
-
-# from .common import (
-#     PlatformType,
-#     MarketDataType,
-#     NO_VALID_ID,
-#     TERMINAL_CONNECT_FAIL,
-#     SERVER_CONNECT_FAIL,
-#     TerminalError,
-#     ErrorInfo,
-#     BarData,
-#     TickerId,
-# )
-
 
 
 @dataclass
@@ -70,7 +56,7 @@ class MetaTrader5Ext:
 
     (DISCONNECTED, CONNECTING, CONNECTED, REDIRECT) = range(4)
     
-    _mt5: Optional[MetaTrader5] = None
+    _mt5: Optional[Union[MetaTrader5.MetaTrader5, MetaTrader5]] = None
     _ea_client: Optional[EAClient] = None
     _platform: Optional[PlatformType] = None
     logger: Optional[logging.Logger] = None
@@ -78,11 +64,18 @@ class MetaTrader5Ext:
     def __init__(self, config: MetaTrader5ExtConfig):
         self._platform = PlatformType(platform.system().capitalize())
         self.logger = (
-            config.logger if config.logger else logging.getLogger(__class__.__name__)
+            config.logger if config.logger else MTLogger(__class__.__name__)
         )
         self._msg_queue = queue.Queue()
         self._lock = threading.Lock()
         self._is_stream = False
+        self.connected = False
+        self.connection_time = None
+        self._conn_state = None
+        self._terminal_version = None
+        self._id = config.id
+        self._config = config
+        self._ea_config: Optional[EAClientConfig] = None
 
         try:
             self._initialize_mt5(config)
@@ -91,14 +84,6 @@ class MetaTrader5Ext:
             raise RuntimeError(
                 "Error occurred while trying to connect to the MetaTrader instance."
             )
-
-        self._connected = False
-        self._connection_time = None
-        self._conn_state = None
-        self._terminal_version = None
-        self._id = config.id
-        self._config = config
-        self._ea_config: Optional[EAClientConfig] = None
 
     def __del__(self):
         """
@@ -161,7 +146,7 @@ class MetaTrader5Ext:
         )
         return EAClient(config=self._ea_config)
 
-    def is_connected(self):
+    def is_connected(self) -> bool:
         """
         Checks if the connection to the MetaTrader 5 terminal is active.
 
@@ -169,15 +154,6 @@ class MetaTrader5Ext:
             bool: True if connected, False otherwise.
         """
         return MetaTrader5Ext.CONNECTED == self._conn_state and self.connected
-
-    def get_connection_time(self):
-        """
-        Retrieves the connection time.
-
-        Returns:
-            Optional[float]: The connection time as a timestamp.
-        """
-        return self.connection_time
 
     def get_error(self) -> ErrorInfo:
         """
@@ -260,9 +236,6 @@ class MetaTrader5Ext:
 
         return eval_result
 
-    #
-    # Connection
-    #
     def connect(self, path: str = "", **kwargs):
         """
         Connects to the MetaTrader 5 terminal.
