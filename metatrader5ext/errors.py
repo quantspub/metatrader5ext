@@ -23,7 +23,7 @@ class ErrorInfo:
         return self._msg
 
 ALREADY_CONNECTED = ErrorInfo(1, "Already connected.")
-SERVER_CONNECT_FAIL = ErrorInfo(-1, "Rpyc Server connection failed")
+RPYC_SERVER_CONNECT_FAIL = ErrorInfo(-1, "Rpyc Server connection failed")
 TERMINAL_CONNECT_FAIL = ErrorInfo(-10003, "Terminal initialization failed")
 UPDATE_TERMINAL = ErrorInfo(503, "The TERMINAL is out of date and must be upgraded.")
 NOT_CONNECTED = ErrorInfo(504, "Not connected")

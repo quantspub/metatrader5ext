@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from metatrader5ext.metatrader5 import RpycConfig, MetaTrader5
 from metatrader5ext.ea import EAClientConfig, EAClient
 from metatrader5ext.common import Mode, PlatformType
-from metatrader5ext.errors import ErrorInfo, TerminalError
+from metatrader5ext.errors import RPYC_SERVER_CONNECT_FAIL, ErrorInfo, TerminalError
 from metatrader5ext.logging import Logger as MTLogger
 
 
@@ -252,19 +252,19 @@ class MetaTrader5Ext:
 
             self.connection_time = datetime.now(timezone.utc).timestamp()
             self.send_msg((0, self._mt5.terminal_info()))
-            self.managed_accounts()
+            self.get_accounts()
 
         except TerminalError as e:
             TERMINAL_CONNECT_FAIL._msg += f" => {e.__str__()}"
             self.logger.error(
-                NO_VALID_ID,
+                TERMINAL_CONNECT_FAIL,
                 TERMINAL_CONNECT_FAIL.code(),
                 TERMINAL_CONNECT_FAIL.msg(),
             )
         except socket.error as e:
-            SERVER_CONNECT_FAIL._msg += f" => {e.__str__()}"
+            RPYC_SERVER_CONNECT_FAIL._msg += f" => {e.__str__()}"
             self.logger.error(
-                NO_VALID_ID, SERVER_CONNECT_FAIL.code(), SERVER_CONNECT_FAIL.msg()
+                RPYC_SERVER_CONNECT_FAIL, RPYC_SERVER_CONNECT_FAIL.code(), RPYC_SERVER_CONNECT_FAIL.msg()
             )
 
     def disconnect(self):
@@ -299,7 +299,7 @@ class MetaTrader5Ext:
         """
         self._conn_state = state
 
-    def managed_accounts(self):
+    def get_accounts(self):
         """
         Retrieves and logs the managed accounts.
         """
