@@ -8,7 +8,7 @@ import numpy as np
 from datetime import datetime, timezone
 from typing import Any, Callable, List, Optional, Union
 from dataclasses import dataclass
-from metatrader5ext.metatrader5_ import RpycConfig, MetaTrader5
+from metatrader5ext.metatrader5 import RpycConfig, MetaTrader5
 from metatrader5ext.ea import EAClientConfig, EAClient
 from metatrader5ext.common import Mode, PlatformType
 from metatrader5ext.errors import RPYC_SERVER_CONNECT_FAIL, ErrorInfo, TerminalError

@@ -49,7 +49,7 @@ Example for using MetaTrader5Streamer:
 """
 
 from rpyc.utils.classic import DEFAULT_SERVER_PORT as RPYC_DEFAULT_SERVER_PORT
-from metatrader5ext.metatrader5_ import MetaTrader5
+from metatrader5ext.metatrader5 import MetaTrader5
 from metatrader5ext.ea import EAClient
 # from .metatrader5ext import MetaTrader5Ext, MetaTrader5ExtConfig
 # from .symbol import Symbol, SymbolInfo, process_symbol_details
