@@ -69,12 +69,11 @@ This core of this project is from:
 - Lucas Prett Campagna https://github.com/lucas-campagna/mt5linux
 """
 
-class MetaTrader5(object):
-    ''' MetaTrader5
+class MetaTrader5:
+    """" MetaTrader5
     
         The MetaTrader 5 RPYC Client
-    
-    '''
+    """
 
     """MetaTrader 5 Constants"""
     # Constants
