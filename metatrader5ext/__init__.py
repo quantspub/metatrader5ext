@@ -49,28 +49,23 @@ Example for using MetaTrader5Streamer:
 """
 
 from rpyc.utils.classic import DEFAULT_SERVER_PORT as RPYC_DEFAULT_SERVER_PORT
-from metatrader5ext.metatrader5 import MetaTrader5
-from metatrader5ext.ea import EAClient
-# from .metatrader5ext import MetaTrader5Ext, MetaTrader5ExtConfig
-# from .symbol import Symbol, SymbolInfo, process_symbol_details
-# from .order import Order, OrderState
+from metatrader5ext.metatrader5 import MetaTrader5, RpycConfig, DockerizedMT5Terminal, DockerizedMT5TerminalConfig
+from metatrader5ext.ea import EAClient, EAClientConfig
+from metatrader5ext.metatrader5ext import MetaTrader5Ext, MetaTrader5ExtConfig
+from metatrader5ext.timeframe_agg import TimeframeAggregator
 from metatrader5ext.logging import Logger as MTLogger
 from metatrader5ext.common import *
-# from .utils import *
-
+from metatrader5ext.errors import *
 
 __all__ = [
-    "MetaTrader5",
-    "EAClient",
-    "DockerizedMT5TerminalConfig",
-    "DockerizedMT5Terminal",
-    "ContainerStatus",
-    "ContainerExists",
-    "NoContainer",
-    "UnknownContainerStatus",
-    "TerminalLoginFailure",
     "MetaTrader5ExtConfig",
     "MetaTrader5Ext",
+    "DockerizedMT5TerminalConfig",
+    "DockerizedMT5Terminal",
+    "RpycConfig",
+    "MetaTrader5",
+    "EAClient",
+    "TimeframeAggregator",
     "MTLogger",
     "RPYC_DEFAULT_SERVER_PORT",
 ]

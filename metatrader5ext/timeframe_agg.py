@@ -1,6 +1,6 @@
 import polars as pl
 
-class TimeFrameAggregator:
+class TimeframeAggregator:
     """ 
     The class for creating custom timeframes using polars for internal aggregation.
     
