@@ -29,7 +29,7 @@ finally:
 
 
 try:
-    from metatrader5ext.metatrader5.terminal import (
+    from metatrader5ext.metatrader5_.terminal import (
         ContainerStatus,
         DockerizedMT5TerminalConfig,
         DockerizedMT5Terminal,
