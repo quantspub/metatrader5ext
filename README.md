@@ -34,20 +34,22 @@ python ./examples/mt5_client.py
 **NOTE:** Make sure to configure the `.env` file properly before running the script or the Docker image. ⚠️
 
 ## Client Modes 🛠️
-This extension supports three different client modes:
+This extension supports two different client modes:
 
 1. **IPC Mode** (Using the MetaTrader Python library) 📦
    - Directly communicates with MetaTrader 5 via the official Python API which uses `IPC`(Inter-Process Communication).
    - Best for local integration without additional network overhead but does not support real-time updates.
 
+
+
+     *For Linux systems* 🐧
+   - Uses `RPyC` (Remote Python Call) to bridge between a Linux environment and MT5 running inside Wine, it uses `IPC` under the hood.
+   - Ideal for automated trading setups on non-Windows environments.
+
 2. **Socket Mode** (Using MetaTrader EA) 🌐
    - Connects to the MetaTrader 5 Expert Advisor (EA) via a custom socket server.
    - Enables external programs (Python, JavaScript, C++) to interact with MT5.
    - Supports real-time updates.
-
-3. **RPyC Mode** (For Linux systems) 🐧
-   - Uses `RPyC` (Remote Python Call) to bridge between a Linux environment and MT5 running inside Wine, it uses `IPC` under the hood.
-   - Ideal for automated trading setups on non-Windows environments.
 
 ## Features ✨
 This extension is divided into two parts:
