@@ -44,7 +44,6 @@ This extension supports two different client modes:
 
      *For Linux systems* 🐧
    - Uses `RPyC` (Remote Python Call) to bridge between a Linux environment and MT5 running inside Wine, it uses `IPC` under the hood.
-   - Ideal for automated trading setups on non-Windows environments.
 
 2. **Socket Mode** (Using MetaTrader EA) 🌐
    - Connects to the MetaTrader 5 Expert Advisor (EA) via a custom socket server.
