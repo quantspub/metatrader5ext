@@ -33,6 +33,7 @@ class MetaTrader5ExtConfig:
     ea_client: Optional[EAClientConfig] = None
     rpyc: Optional[RpycConfig] = None
     logger: Optional[Callable] = None
+    debug: bool = False
 
 
 class MetaTrader5Ext:
@@ -46,12 +47,12 @@ class MetaTrader5Ext:
         logger (Callable): Logger instance for logging messages.
         _msg_queue (queue.Queue): Queue for managing messages.
         _lock (threading.Lock): Lock for thread-safe operations.
-        _mt5 (MetaTrader5): MetaTrader5 instance.
-        _ea_client (EAClient): Server for handling data streams.
+        _mt5 (MetaTrader5.MetaTrader5, MetaTrader5, EAClient): MetaTrader5 instance.
         enable_stream (bool): Flag to enable or disable streaming.
         connected (bool): Connection status.
         connection_time (Optional[float]): Time of the connection.
         client_id (Optional[int]): ID of the client.
+        connected_server (Optional[str]): Server to which the client is connected.
     """
 
     (DISCONNECTED, CONNECTING, CONNECTED, REDIRECT) = range(4)
@@ -60,12 +61,15 @@ class MetaTrader5Ext:
     _ea_client: Optional[EAClient] = None
     _platform: Optional[PlatformType] = None
     logger: Optional[logging.Logger] = None
+    debug: bool = False
 
     def __init__(self, config: MetaTrader5ExtConfig):
         self._platform = PlatformType(platform.system().capitalize())
         self.logger = (
             config.logger if config.logger else MTLogger(__class__.__name__)
         )
+        self.debug = config.debug
+        self.client_id = config.id
         self._msg_queue = queue.Queue()
         self._lock = threading.Lock()
         self._is_stream = False
@@ -73,7 +77,6 @@ class MetaTrader5Ext:
         self.connection_time = None
         self._conn_state = None
         self._terminal_version = None
-        self._id = config.id
         self._config = config
         self._ea_config: Optional[EAClientConfig] = None
 
@@ -103,14 +106,14 @@ class MetaTrader5Ext:
         self._msg_queue = queue.Queue()
 
     def _initialize_mt5(self, config: MetaTrader5ExtConfig):
-        if config.mode == Mode.IPC or config.mode == Mode.RPYC:
+        if config.mode == Mode.IPC:
             self._mt5 = self._initialize_mt_client(config)
         elif config.mode == Mode.EA:
             if config.ea_client is not None:
                 self._ea_client = self._initialize_ea_client(config)
             else:
                 raise RuntimeError("EA configuration is required for EA mode.")
-        elif config.mode == Mode.EA_IPC or config.mode == Mode.EA_RPYC:
+        elif config.mode == Mode.EA_IPC:
             self._mt5 = self._initialize_mt_client(config)
             if config.ea_client is not None:
                 self._ea_client = self._initialize_ea_client(config)
@@ -118,9 +121,9 @@ class MetaTrader5Ext:
             raise ValueError("Invalid mode selected.")
 
     def _initialize_mt_client(self, config: MetaTrader5ExtConfig):
-        if config.mode == Mode.IPC:
+        if self._platform == PlatformType.WINDOWS:
             return MetaTrader5
-        elif config.mode == Mode.RPYC:
+        elif self._platform == PlatformType.LINUX:
             if config.rpyc is not None:
                 return MetaTrader5.MetaTrader5(
                     host=config.rpyc.host,
@@ -251,6 +254,14 @@ class MetaTrader5Ext:
                 raise TerminalError(TERMINAL_CONNECT_FAIL)
 
             self.connection_time = datetime.now(timezone.utc).timestamp()
+            self.set_conn_state(MetaTrader5Ext.CONNECTED)
+            self._terminal_version = self._mt5.version()
+            if self._terminal_version is None:
+                self._terminal_version = "Unknown"
+            
+            if self.debug:
+                self.logger.info(f"Connected to MetaTrader 5 terminal version: {self._terminal_version}")
+            
             self.send_msg((0, self._mt5.terminal_info()))
             self.get_accounts()
 
